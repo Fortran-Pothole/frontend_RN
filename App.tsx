@@ -1,59 +1,53 @@
 import * as React from 'react';
-import {NavigationContainer, ParamListBase} from '@react-navigation/native';
-import {
-  createNativeStackNavigator,
-  NativeStackScreenProps,
-} from '@react-navigation/native-stack';
-import {Text, TouchableHighlight, View} from 'react-native';
-import {useCallback} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+//import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import Map from './src/pages/Map';
+import {useState} from 'react';
+import SignIn from './src/pages/SignIn';
+import SignUp from './src/pages/SignUp';
 
-type RootStackParamList = {
-  Home: undefined;
-  Details: undefined;
+//로그인 후 보이는 화면
+export type LoggedInParamList = {
+  Map: undefined;
 };
-type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
-type DetailsScreenProps = NativeStackScreenProps<ParamListBase, 'Details'>;
 
-function HomeScreen({navigation}: HomeScreenProps) {
-  const onClick = useCallback(() => {
-    navigation.navigate('Details');
-  }, [navigation]);
+//로그인하지 않았을 때 보이는 화면
+export type RootStackParamList = {
+  SignIn: undefined;
+  SignUp: undefined;
+};
 
-  return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <TouchableHighlight onPress={onClick}>
-        <Text>Home Screen</Text>
-      </TouchableHighlight>
-    </View>
-  );
-}
-
-function DetailsScreen({navigation}: DetailsScreenProps) {
-  const onClick = useCallback(() => {
-    navigation.navigate('Home');
-  }, [navigation]);
-
-  return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <TouchableHighlight onPress={onClick}>
-        <Text>Details Screen</Text>
-      </TouchableHighlight>
-    </View>
-  );
-}
-
+//const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
 function App() {
+  //로그인하면 map화면만 보이고 로그인하지 않으면 로그인 화면만 보임
+  const [isLoggedIn, setLoggedIn] = useState(true);
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{title: 'Overview'}}
-        />
-        <Stack.Screen name="Details" component={DetailsScreen} />
-      </Stack.Navigator>
+      {isLoggedIn ? (
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Map"
+            component={Map}
+            options={{headerShown: false}}
+          />
+        </Stack.Navigator>
+      ) : (
+        <Stack.Navigator>
+          <Stack.Screen
+            name="SignIn"
+            component={SignIn}
+            options={{title: '로그인'}}
+          />
+          <Stack.Screen
+            name="SignUp"
+            component={SignUp}
+            options={{title: '회원가입'}}
+          />
+        </Stack.Navigator>
+      )}
     </NavigationContainer>
   );
 }
