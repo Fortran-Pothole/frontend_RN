@@ -19,6 +19,7 @@ export type RootStackParamList = {
 };
 
 //const Tab = createBottomTabNavigator();
+const LoggedInStack = createNativeStackNavigator<LoggedInParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
@@ -27,13 +28,13 @@ function App() {
   return (
     <NavigationContainer>
       {isLoggedIn ? (
-        <Stack.Navigator>
-          <Stack.Screen
+        <LoggedInStack.Navigator>
+          <LoggedInStack.Screen
             name="Map"
             component={Map}
             options={{headerShown: false}}
           />
-        </Stack.Navigator>
+        </LoggedInStack.Navigator>
       ) : (
         <Stack.Navigator>
           <Stack.Screen
