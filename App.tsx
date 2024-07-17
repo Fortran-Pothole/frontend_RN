@@ -19,32 +19,28 @@ export type RootStackParamList = {
 };
 
 //const Tab = createBottomTabNavigator();
+const LoggedInStack = createNativeStackNavigator<LoggedInParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
   //로그인하면 map화면만 보이고 로그인하지 않으면 로그인 화면만 보임
-  const [isLoggedIn, setLoggedIn] = useState(true);
+  const [isLoggedIn, setLoggedIn] = useState(false);
   return (
     <NavigationContainer>
       {isLoggedIn ? (
-        <Stack.Navigator>
-          <Stack.Screen
+        <LoggedInStack.Navigator>
+          <LoggedInStack.Screen
             name="Map"
             component={Map}
             options={{headerShown: false}}
           />
-        </Stack.Navigator>
+        </LoggedInStack.Navigator>
       ) : (
         <Stack.Navigator>
           <Stack.Screen
-            name="SignIn"
-            component={SignIn}
-            options={{title: '로그인'}}
-          />
-          <Stack.Screen
             name="SignUp"
             component={SignUp}
-            options={{title: '회원가입'}}
+            options={{title: '회원가입', headerShown: false}}
           />
         </Stack.Navigator>
       )}
