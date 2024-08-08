@@ -6,6 +6,7 @@ import Map from './src/pages/Map';
 import {useState} from 'react';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
+import Setting from './src/pages/Setting';
 
 //로그인 후 보이는 화면
 export type LoggedInParamList = {
@@ -30,8 +31,8 @@ function App() {
       {isLoggedIn ? (
         <LoggedInStack.Navigator>
           <LoggedInStack.Screen
-            name="Map"
-            component={Map}
+            name="Setting"
+            component={Setting}
             options={{headerShown: false}}
           />
         </LoggedInStack.Navigator>
