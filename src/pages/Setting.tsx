@@ -20,7 +20,7 @@ function Setting({navigation}) {
       </View>
       <TouchableOpacity 
           style={styles.item}
-          onPress={() => navigation.navigate('WebViewScreen', {url: 'https://fortrancapstone.notion.site/9782e8a5ddc24c1197310db0656b34b8'})}
+          onPress={() => navigation.navigate('NoticePothole')}
       >
         <Text style={styles.text}>내가 신고한 포트홀 조회</Text>
       </TouchableOpacity>
