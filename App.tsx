@@ -8,13 +8,13 @@ import OpenSourceLicenseScreen from './src/pages/OpenSource';
 import {useState} from 'react';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
-import { Setting , WebViewScreen } from './src/pages/Setting';
+import {Setting, WebViewScreen} from './src/pages/Setting';
 
 //로그인 후 보이는 화면
 export type LoggedInParamList = {
   Map: undefined;
   Setting: undefined;
-  WebViewScreen: { url : stringm};
+  WebViewScreen: {url: stringm};
   OpenSourceLicenseScreen: undefined;
   NoticePothole: undefined;
 };
@@ -31,7 +31,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
   //로그인하면 map화면만 보이고 로그인하지 않으면 로그인 화면만 보임
-  const [isLoggedIn, setLoggedIn] = useState(true);
+  const [isLoggedIn, setLoggedIn] = useState(false);
   return (
     <NavigationContainer>
       {isLoggedIn ? (
@@ -44,22 +44,22 @@ function App() {
           <LoggedInStack.Screen
             name="Setting"
             component={Setting}
-            options = {{title: '설정'}}
+            options={{title: '설정'}}
           />
           <LoggedInStack.Screen
             name="WebViewScreen"
             component={WebViewScreen}
-            options = {{headerShown: false}}
+            options={{headerShown: false}}
           />
           <LoggedInStack.Screen
             name="OpenSourceLicenseScreen"
             component={OpenSourceLicenseScreen}
-            options = {{title: 'OpenSource'}}
+            options={{title: 'OpenSource'}}
           />
           <LoggedInStack.Screen
             name="NoticePothole"
             component={NoticePothole}
-            options = {{title: '신고한 포트홀 조회'}}
+            options={{title: '신고한 포트홀 조회'}}
           />
         </LoggedInStack.Navigator>
       ) : (

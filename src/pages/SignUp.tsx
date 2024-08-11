@@ -77,7 +77,10 @@ function SignUp() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+      <TouchableOpacity
+        style={styles.signUpButton}
+        onPress={handleSignUp}
+        disabled>
         <Text style={styles.signUpButtonText}>가입하기</Text>
       </TouchableOpacity>
 
