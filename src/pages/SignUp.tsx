@@ -13,6 +13,7 @@ function SignUp() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [isVerified, setIsVerified] = useState(false);
+  const canGoNext = nickname && phoneNumber && verificationCode;
 
   const handleNicknameCheck = () => {
     // 닉네임 중복 확인 로직
@@ -69,6 +70,7 @@ function SignUp() {
           placeholder="전화번호 인증"
           value={verificationCode}
           onChangeText={setVerificationCode}
+          secureTextEntry
         />
         <TouchableOpacity
           style={styles.button}
@@ -78,9 +80,13 @@ function SignUp() {
       </View>
 
       <TouchableOpacity
-        style={styles.signUpButton}
+        style={
+          !canGoNext
+            ? styles.signUpButton
+            : [styles.signUpButton, styles.signUpButtonActive]
+        }
         onPress={handleSignUp}
-        disabled>
+        disabled={!canGoNext}>
         <Text style={styles.signUpButtonText}>가입하기</Text>
       </TouchableOpacity>
 
@@ -128,7 +134,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   signUpButton: {
-    backgroundColor: '#003366',
+    backgroundColor: '#727783',
     padding: 16,
     borderRadius: 25,
     marginBottom: 20,
@@ -136,6 +142,9 @@ const styles = StyleSheet.create({
     width: 230,
     alignItems: 'center',
     alignSelf: 'center', // 추가: 버튼을 가로 방향으로 중앙에 배치
+  },
+  signUpButtonActive: {
+    backgroundColor: '#003366',
   },
   signUpButtonText: {
     color: 'white',
