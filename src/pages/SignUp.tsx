@@ -71,6 +71,9 @@ function SignUp() {
           value={verificationCode}
           onChangeText={setVerificationCode}
           secureTextEntry
+          autoComplete="sms-otp" // 추가: 자동완성에 SMS OTP 사용
+          importantForAutofill="yes" // 추가: 자동완성에 중요
+          textContentType="oneTimeCode" // 추가: 일회성 코드 입력을 위한 필드임을 지정
         />
         <TouchableOpacity
           style={styles.button}
