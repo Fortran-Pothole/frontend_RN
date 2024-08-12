@@ -42,7 +42,10 @@ function Setting({navigation}) {
       >
         <Text style={styles.text}>오픈 소스</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.item}>
+      <TouchableOpacity 
+          style={styles.item}
+          onPress={() => navigation.navigate('Withdraw')}
+      >
         <Text style={styles.text}>탈퇴하기</Text>
       </TouchableOpacity>
     </View>

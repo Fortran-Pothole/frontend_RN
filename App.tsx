@@ -3,6 +3,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 //import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Map from './src/pages/Map';
+import Withdraw from './src/pages/Withdraw';
 import NoticePothole from './src/pages/NoitcePothole';
 import OpenSourceLicenseScreen from './src/pages/OpenSource';
 import {useState} from 'react';
@@ -14,9 +15,10 @@ import { Setting , WebViewScreen } from './src/pages/Setting';
 export type LoggedInParamList = {
   Map: undefined;
   Setting: undefined;
-  WebViewScreen: { url : stringm};
+  WebViewScreen: { url : string};
   OpenSourceLicenseScreen: undefined;
   NoticePothole: undefined;
+  Withdraw: undefined;
 };
 
 //로그인하지 않았을 때 보이는 화면
@@ -60,6 +62,11 @@ function App() {
             name="NoticePothole"
             component={NoticePothole}
             options = {{title: '신고한 포트홀 조회'}}
+          />
+          <LoggedInStack.Screen
+            name="Withdraw"
+            component={Withdraw}
+            options = {{title: '탈퇴하기'}}
           />
         </LoggedInStack.Navigator>
       ) : (
