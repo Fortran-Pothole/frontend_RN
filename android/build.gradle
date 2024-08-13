@@ -18,4 +18,10 @@ buildscript {
     }
 }
 
+allprojects {
+    repositories {
+        maven {url 'https://naver.jfrog.io/artifactory/maven/'}
+    }
+}
+
 apply plugin: "com.facebook.react.rootproject"

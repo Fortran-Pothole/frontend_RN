@@ -3,6 +3,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 //import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Map from './src/pages/Map';
+import VoiceNotice from './src/pages/VoiceNotice';
 import Withdraw from './src/pages/Withdraw';
 import NoticePothole from './src/pages/NoitcePothole';
 import OpenSourceLicenseScreen from './src/pages/OpenSource';
@@ -19,6 +20,7 @@ export type LoggedInParamList = {
   OpenSourceLicenseScreen: undefined;
   NoticePothole: undefined;
   Withdraw: undefined;
+  VoiceNotice: undefined;
 };
 
 //로그인하지 않았을 때 보이는 화면
