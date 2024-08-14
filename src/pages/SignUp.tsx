@@ -19,8 +19,10 @@ function SignUp() {
   const [verificationCodeError, setVerificationCodeError] = useState('');
 
   const canGoNext = nickname && phoneNumber && verificationCode;
+  const isNicknameValid = nickname.trim().length > 0;
+  const isPhoneNumberValid = phoneNumber.length === 11;
+  const isVerificationCodeValid = verificationCode.trim().length > 0;
 
-  // 입력 필드에 공백이 입력된 경우 경고 메시지를 표시
   const handleTextChange = (
     text,
     setFunction,
@@ -123,7 +125,13 @@ function SignUp() {
             value={nickname}
             onChangeText={handleNicknameChange}
           />
-          <TouchableOpacity style={styles.button} onPress={handleNicknameCheck}>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              {backgroundColor: isNicknameValid ? '#003366' : '#727783'},
+            ]}
+            onPress={handleNicknameCheck}
+            disabled={!isNicknameValid}>
             <Text style={styles.buttonText}>확인</Text>
           </TouchableOpacity>
         </View>
@@ -142,8 +150,12 @@ function SignUp() {
             onChangeText={handlePhoneNumberChange}
           />
           <TouchableOpacity
-            style={styles.button}
-            onPress={handlePhoneNumberVerification}>
+            style={[
+              styles.button,
+              {backgroundColor: isPhoneNumberValid ? '#003366' : '#727783'},
+            ]}
+            onPress={handlePhoneNumberVerification}
+            disabled={!isPhoneNumberValid}>
             <Text style={styles.buttonText}>인증</Text>
           </TouchableOpacity>
         </View>
@@ -166,8 +178,16 @@ function SignUp() {
             textContentType="oneTimeCode"
           />
           <TouchableOpacity
-            style={styles.button}
-            onPress={handleVerificationCodeCheck}>
+            style={[
+              styles.button,
+              {
+                backgroundColor: isVerificationCodeValid
+                  ? '#003366'
+                  : '#727783',
+              },
+            ]}
+            onPress={handleVerificationCodeCheck}
+            disabled={!isVerificationCodeValid}>
             <Text style={styles.buttonText}>확인</Text>
           </TouchableOpacity>
         </View>
@@ -177,11 +197,10 @@ function SignUp() {
       </View>
 
       <TouchableOpacity
-        style={
-          !canGoNext
-            ? styles.signUpButton
-            : [styles.signUpButton, styles.signUpButtonActive]
-        }
+        style={[
+          styles.signUpButton,
+          {backgroundColor: canGoNext ? '#003366' : '#727783'},
+        ]}
         onPress={handleSignUp}
         disabled={!canGoNext}>
         <Text style={styles.signUpButtonText}>가입하기</Text>
@@ -223,9 +242,10 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 0.17,
-    backgroundColor: '#003366',
     padding: 12,
     borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonText: {
     color: 'white',
@@ -233,7 +253,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   signUpButton: {
-    backgroundColor: '#727783',
     padding: 16,
     borderRadius: 25,
     marginBottom: 20,
@@ -241,9 +260,6 @@ const styles = StyleSheet.create({
     width: 230,
     alignItems: 'center',
     alignSelf: 'center',
-  },
-  signUpButtonActive: {
-    backgroundColor: '#003366',
   },
   signUpButtonText: {
     color: 'white',
