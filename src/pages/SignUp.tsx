@@ -82,6 +82,21 @@ function SignUp() {
       return;
     }
 
+    // Database check simulation
+    const existingNicknames = [
+      'existingUser1',
+      'existingUser2',
+      'existingUser3',
+    ];
+
+    if (existingNicknames.includes(nickname)) {
+      setNicknameError('이미 다른 사용자가 사용 중 입니다.');
+    } else {
+      setNicknameError('사용 가능한 닉네임입니다.');
+    }
+
+    // Uncomment and use below code if the database is connected
+    /*
     try {
       const IDcheck = await dbService
         .collection('User_Profile')
@@ -96,6 +111,7 @@ function SignUp() {
     } catch (error) {
       setNicknameError('닉네임 확인 중 오류가 발생했습니다.');
     }
+    */
   };
 
   const handlePhoneNumberVerification = () => {
@@ -136,7 +152,13 @@ function SignUp() {
           </TouchableOpacity>
         </View>
         {nicknameError ? (
-          <Text style={styles.errorText}>{nicknameError}</Text>
+          <Text
+            style={[
+              styles.errorText,
+              nicknameError === '사용 가능한 닉네임입니다.' && {color: 'green'},
+            ]}>
+            {nicknameError}
+          </Text>
         ) : null}
       </View>
 
@@ -191,8 +213,10 @@ function SignUp() {
             <Text style={styles.buttonText}>확인</Text>
           </TouchableOpacity>
         </View>
-        {verificationCodeError ? (
-          <Text style={styles.errorText}>{verificationCodeError}</Text>
+        {verificationCodeError || isVerified ? (
+          <Text style={[styles.errorText, isVerified && {color: 'green'}]}>
+            {isVerified ? '인증되었습니다!' : verificationCodeError}
+          </Text>
         ) : null}
       </View>
 
@@ -205,10 +229,6 @@ function SignUp() {
         disabled={!canGoNext}>
         <Text style={styles.signUpButtonText}>가입하기</Text>
       </TouchableOpacity>
-
-      {isVerified && (
-        <Text style={styles.verificationText}>인증되었습니다!</Text>
-      )}
     </View>
   );
 }
@@ -264,11 +284,6 @@ const styles = StyleSheet.create({
   signUpButtonText: {
     color: 'white',
     fontWeight: 'bold',
-  },
-  verificationText: {
-    textAlign: 'center',
-    color: 'green',
-    marginTop: 16,
   },
   errorText: {
     color: 'red',
