@@ -20,7 +20,7 @@ function SignUp() {
 
   const canGoNext = nickname && phoneNumber && verificationCode;
 
-  //입력 필드에 공백이 입력된 경우 경고 메시지를 표시
+  // 입력 필드에 공백이 입력된 경우 경고 메시지를 표시
   const handleTextChange = (
     text,
     setFunction,
@@ -74,8 +74,26 @@ function SignUp() {
     }
   };
 
-  const handleNicknameCheck = () => {
-    // 닉네임 중복 확인 로직
+  const handleNicknameCheck = async () => {
+    if (!nickname) {
+      setNicknameError('닉네임을 입력해 주세요.');
+      return;
+    }
+
+    try {
+      const IDcheck = await dbService
+        .collection('User_Profile')
+        .where('displayName', '==', nickname)
+        .get();
+
+      if (IDcheck.docs.length == 0) {
+        setNicknameError('사용 가능한 닉네임입니다.');
+      } else {
+        setNicknameError('이미 다른 사용자가 사용 중 입니다.');
+      }
+    } catch (error) {
+      setNicknameError('닉네임 확인 중 오류가 발생했습니다.');
+    }
   };
 
   const handlePhoneNumberVerification = () => {
