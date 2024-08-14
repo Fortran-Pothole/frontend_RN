@@ -6,7 +6,6 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 
 function SignUp() {
@@ -14,35 +13,65 @@ function SignUp() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [isVerified, setIsVerified] = useState(false);
+
+  const [nicknameError, setNicknameError] = useState('');
+  const [phoneNumberError, setPhoneNumberError] = useState('');
+  const [verificationCodeError, setVerificationCodeError] = useState('');
+
   const canGoNext = nickname && phoneNumber && verificationCode;
 
   //입력 필드에 공백이 입력된 경우 경고 메시지를 표시
-  const handleTextChange = (text, setFunction, fieldName) => {
+  const handleTextChange = (
+    text,
+    setFunction,
+    setErrorFunction,
+    errorMessage,
+  ) => {
     const trimmedText = text.trim();
     if (trimmedText !== text) {
-      Alert.alert('알림', `${fieldName}을(를) 정확히 입력해 주세요.`);
+      setErrorFunction(errorMessage);
     } else {
+      setErrorFunction('');
       setFunction(trimmedText);
     }
   };
 
   const handleNicknameChange = text =>
-    handleTextChange(text, setNickname, '닉네임');
+    handleTextChange(
+      text,
+      setNickname,
+      setNicknameError,
+      '닉네임을 정확히 입력해 주세요.',
+    );
 
   const handlePhoneNumberChange = text => {
     const numericText = text.replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
     if (numericText !== text) {
-      Alert.alert('알림', '전화번호를 정확히 입력해 주세요.');
+      setPhoneNumberError('전화번호를 정확히 입력해 주세요.');
+    } else {
+      setPhoneNumberError('');
+      handleTextChange(
+        numericText,
+        setPhoneNumber,
+        setPhoneNumberError,
+        '전화번호를 정확히 입력해 주세요.',
+      );
     }
-    handleTextChange(numericText, setPhoneNumber, '전화번호');
   };
 
   const handleVerificationCodeChange = text => {
     const numericText = text.replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
     if (numericText !== text) {
-      Alert.alert('알림', '인증번호를 정확히 입력해 주세요.');
+      setVerificationCodeError('인증번호를 정확히 입력해 주세요.');
+    } else {
+      setVerificationCodeError('');
+      handleTextChange(
+        numericText,
+        setVerificationCode,
+        setVerificationCodeError,
+        '인증번호를 정확히 입력해 주세요.',
+      );
     }
-    handleTextChange(numericText, setVerificationCode, '인증번호');
   };
 
   const handleNicknameCheck = () => {
@@ -68,50 +97,65 @@ function SignUp() {
         <LoginSVG width={136} height={31} />
       </View>
 
-      <View style={styles.inputRow}>
-        <TextInput
-          style={styles.input}
-          placeholder="닉네임"
-          value={nickname}
-          onChangeText={handleNicknameChange}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleNicknameCheck}>
-          <Text style={styles.buttonText}>확인</Text>
-        </TouchableOpacity>
+      <View style={styles.inputWrapper}>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.input}
+            placeholder="닉네임"
+            value={nickname}
+            onChangeText={handleNicknameChange}
+          />
+          <TouchableOpacity style={styles.button} onPress={handleNicknameCheck}>
+            <Text style={styles.buttonText}>확인</Text>
+          </TouchableOpacity>
+        </View>
+        {nicknameError ? (
+          <Text style={styles.errorText}>{nicknameError}</Text>
+        ) : null}
       </View>
 
-      <View style={styles.inputRow}>
-        <TextInput
-          style={styles.input}
-          placeholder="전화번호"
-          value={phoneNumber}
-          keyboardType="phone-pad"
-          onChangeText={handlePhoneNumberChange}
-        />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handlePhoneNumberVerification}>
-          <Text style={styles.buttonText}>인증</Text>
-        </TouchableOpacity>
+      <View style={styles.inputWrapper}>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.input}
+            placeholder="전화번호"
+            value={phoneNumber}
+            keyboardType="phone-pad"
+            onChangeText={handlePhoneNumberChange}
+          />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handlePhoneNumberVerification}>
+            <Text style={styles.buttonText}>인증</Text>
+          </TouchableOpacity>
+        </View>
+        {phoneNumberError ? (
+          <Text style={styles.errorText}>{phoneNumberError}</Text>
+        ) : null}
       </View>
 
-      <View style={styles.inputRow}>
-        <TextInput
-          style={styles.input}
-          placeholder="전화번호 인증"
-          value={verificationCode}
-          keyboardType="numeric"
-          onChangeText={handleVerificationCodeChange}
-          secureTextEntry
-          autoComplete="sms-otp"
-          importantForAutofill="yes"
-          textContentType="oneTimeCode"
-        />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleVerificationCodeCheck}>
-          <Text style={styles.buttonText}>확인</Text>
-        </TouchableOpacity>
+      <View style={styles.inputWrapper}>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.input}
+            placeholder="전화번호 인증"
+            value={verificationCode}
+            keyboardType="numeric"
+            onChangeText={handleVerificationCodeChange}
+            secureTextEntry
+            autoComplete="sms-otp"
+            importantForAutofill="yes"
+            textContentType="oneTimeCode"
+          />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleVerificationCodeCheck}>
+            <Text style={styles.buttonText}>확인</Text>
+          </TouchableOpacity>
+        </View>
+        {verificationCodeError ? (
+          <Text style={styles.errorText}>{verificationCodeError}</Text>
+        ) : null}
       </View>
 
       <TouchableOpacity
@@ -143,10 +187,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 100,
   },
+  inputWrapper: {
+    marginBottom: 35, // 입력 필드 간의 간격을 늘리기 위해 설정
+  },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 35,
   },
   input: {
     flex: 0.8,
@@ -189,6 +235,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'green',
     marginTop: 16,
+  },
+  errorText: {
+    color: 'red',
+    marginLeft: 35,
+    marginTop: 5,
   },
 });
 
