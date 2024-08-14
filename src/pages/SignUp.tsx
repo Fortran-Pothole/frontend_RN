@@ -6,6 +6,7 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 
 function SignUp() {
@@ -14,6 +15,35 @@ function SignUp() {
   const [verificationCode, setVerificationCode] = useState('');
   const [isVerified, setIsVerified] = useState(false);
   const canGoNext = nickname && phoneNumber && verificationCode;
+
+  //입력 필드에 공백이 입력된 경우 경고 메시지를 표시
+  const handleTextChange = (text, setFunction, fieldName) => {
+    const trimmedText = text.trim();
+    if (trimmedText !== text) {
+      Alert.alert('알림', `${fieldName}을(를) 정확히 입력해 주세요.`);
+    } else {
+      setFunction(trimmedText);
+    }
+  };
+
+  const handleNicknameChange = text =>
+    handleTextChange(text, setNickname, '닉네임');
+
+  const handlePhoneNumberChange = text => {
+    const numericText = text.replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
+    if (numericText !== text) {
+      Alert.alert('알림', '전화번호를 정확히 입력해 주세요.');
+    }
+    handleTextChange(numericText, setPhoneNumber, '전화번호');
+  };
+
+  const handleVerificationCodeChange = text => {
+    const numericText = text.replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
+    if (numericText !== text) {
+      Alert.alert('알림', '인증번호를 정확히 입력해 주세요.');
+    }
+    handleTextChange(numericText, setVerificationCode, '인증번호');
+  };
 
   const handleNicknameCheck = () => {
     // 닉네임 중복 확인 로직
@@ -43,7 +73,7 @@ function SignUp() {
           style={styles.input}
           placeholder="닉네임"
           value={nickname}
-          onChangeText={setNickname}
+          onChangeText={handleNicknameChange}
         />
         <TouchableOpacity style={styles.button} onPress={handleNicknameCheck}>
           <Text style={styles.buttonText}>확인</Text>
@@ -55,7 +85,8 @@ function SignUp() {
           style={styles.input}
           placeholder="전화번호"
           value={phoneNumber}
-          onChangeText={setPhoneNumber}
+          keyboardType="phone-pad"
+          onChangeText={handlePhoneNumberChange}
         />
         <TouchableOpacity
           style={styles.button}
@@ -69,11 +100,12 @@ function SignUp() {
           style={styles.input}
           placeholder="전화번호 인증"
           value={verificationCode}
-          onChangeText={setVerificationCode}
+          keyboardType="numeric"
+          onChangeText={handleVerificationCodeChange}
           secureTextEntry
-          autoComplete="sms-otp" // 추가: 자동완성에 SMS OTP 사용
-          importantForAutofill="yes" // 추가: 자동완성에 중요
-          textContentType="oneTimeCode" // 추가: 일회성 코드 입력을 위한 필드임을 지정
+          autoComplete="sms-otp"
+          importantForAutofill="yes"
+          textContentType="oneTimeCode"
         />
         <TouchableOpacity
           style={styles.button}
@@ -144,7 +176,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
     width: 230,
     alignItems: 'center',
-    alignSelf: 'center', // 추가: 버튼을 가로 방향으로 중앙에 배치
+    alignSelf: 'center',
   },
   signUpButtonActive: {
     backgroundColor: '#003366',
