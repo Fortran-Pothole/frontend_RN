@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import LoginSVG from '../assets/login_fortran.svg';
-import DismissKeyboardView from '../components/DismissKeyboardView';
 import {
   Text,
   TextInput,
