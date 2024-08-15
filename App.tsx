@@ -2,6 +2,7 @@ import * as React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Map from './src/pages/Map';
+import VoiceNotice from './src/pages/VoiceNotice';
 import Withdraw from './src/pages/Withdraw';
 import NoticePothole from './src/pages/NoitcePothole';
 import OpenSourceLicenseScreen from './src/pages/OpenSource';
@@ -18,6 +19,7 @@ export type LoggedInParamList = {
   OpenSourceLicenseScreen: undefined;
   NoticePothole: undefined;
   Withdraw: undefined;
+  VoiceNotice: undefined;
 };
 
 // 로그인하지 않았을 때 보이는 화면
@@ -30,7 +32,7 @@ const LoggedInStack = createNativeStackNavigator<LoggedInParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
-  const [isLoggedIn, setLoggedIn] = useState(false); // 로그인 상태 관리
+  const [isLoggedIn, setLoggedIn] = useState(true); // 로그인 상태 관리
 
   return (
     <NavigationContainer>
