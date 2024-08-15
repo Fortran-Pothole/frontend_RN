@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
-import LoginSVG from '../assets/login_fortran.svg';
+import React, {useState, useRef} from 'react';
 import {
+  Animated,
   Text,
   TextInput,
   View,
@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import LoginSVG from '../assets/login_fortran.svg';
 
 function SignUp({setLoggedIn}) {
   const [nickname, setNickname] = useState('');
@@ -18,10 +19,13 @@ function SignUp({setLoggedIn}) {
 
   const [nicknameVerified, setNicknameVerified] = useState(false);
   const [phoneNumberVerified, setPhoneNumberVerified] = useState(false);
+  const [showVerificationField, setShowVerificationField] = useState(false);
 
   const [nicknameError, setNicknameError] = useState('');
   const [phoneNumberError, setPhoneNumberError] = useState('');
   const [verificationCodeError, setVerificationCodeError] = useState('');
+
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   const navigation = useNavigation();
 
@@ -109,23 +113,26 @@ function SignUp({setLoggedIn}) {
   };
 
   const handlePhoneNumberVerification = () => {
-    // 전화번호 인증 로직
     setPhoneNumberVerified(true);
+    setShowVerificationField(true); // 인증 필드 보이기
+    Animated.timing(slideAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(); // 슬라이드 애니메이션
   };
 
   const handleVerificationCodeCheck = () => {
-    // 인증번호 확인 로직
     setIsVerified(true); // 임시로 인증 완료로 설정
   };
 
   const handleSignUp = () => {
     if (canGoNext) {
       Alert.alert('알림', '회원가입이 완료되었습니다!');
-      setLoggedIn(true); // 로그인 상태로 전환
+      setLoggedIn(true);
 
-      // 네비게이션을 지연시킨 후 이동
       setTimeout(() => {
-        navigation.navigate('Map'); // 회원가입 완료 후 Map 화면으로 이동
+        navigation.navigate('Map');
       }, 100); // 100ms 지연
     } else {
       Alert.alert('알림', '모든 확인 절차를 완료해 주세요.');
@@ -191,39 +198,54 @@ function SignUp({setLoggedIn}) {
         ) : null}
       </View>
 
-      <View style={styles.inputWrapper}>
-        <View style={styles.inputRow}>
-          <TextInput
-            style={styles.input}
-            placeholder="전화번호 인증"
-            value={verificationCode}
-            keyboardType="numeric"
-            onChangeText={handleVerificationCodeChange}
-            secureTextEntry
-            autoComplete="sms-otp"
-            importantForAutofill="yes"
-            textContentType="oneTimeCode"
-          />
-          <TouchableOpacity
-            style={[
-              styles.button,
-              {
-                backgroundColor: isVerificationCodeValid
-                  ? '#003366'
-                  : '#727783',
-              },
-            ]}
-            onPress={handleVerificationCodeCheck}
-            disabled={!isVerificationCodeValid}>
-            <Text style={styles.buttonText}>확인</Text>
-          </TouchableOpacity>
-        </View>
-        {verificationCodeError || isVerified ? (
-          <Text style={[styles.errorText, isVerified && {color: 'green'}]}>
-            {isVerified ? '인증되었습니다!' : verificationCodeError}
-          </Text>
-        ) : null}
-      </View>
+      {showVerificationField && (
+        <Animated.View
+          style={[
+            styles.inputWrapper,
+            {
+              transform: [
+                {
+                  translateY: slideAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [-50, 0], // 위에서 아래로 슬라이드
+                  }),
+                },
+              ],
+            },
+          ]}>
+          <View style={styles.inputRow}>
+            <TextInput
+              style={styles.input}
+              placeholder="전화번호 인증"
+              value={verificationCode}
+              keyboardType="numeric"
+              onChangeText={handleVerificationCodeChange}
+              secureTextEntry
+              autoComplete="sms-otp"
+              importantForAutofill="yes"
+              textContentType="oneTimeCode"
+            />
+            <TouchableOpacity
+              style={[
+                styles.button,
+                {
+                  backgroundColor: isVerificationCodeValid
+                    ? '#003366'
+                    : '#727783',
+                },
+              ]}
+              onPress={handleVerificationCodeCheck}
+              disabled={!isVerificationCodeValid}>
+              <Text style={styles.buttonText}>확인</Text>
+            </TouchableOpacity>
+          </View>
+          {verificationCodeError || isVerified ? (
+            <Text style={[styles.errorText, isVerified && {color: 'green'}]}>
+              {isVerified ? '인증되었습니다!' : verificationCodeError}
+            </Text>
+          ) : null}
+        </Animated.View>
+      )}
 
       <TouchableOpacity
         style={[
@@ -250,7 +272,7 @@ const styles = StyleSheet.create({
     marginBottom: 100,
   },
   inputWrapper: {
-    marginBottom: 35, // 입력 필드 간의 간격을 늘리기 위해 설정
+    marginBottom: 35,
   },
   inputRow: {
     flexDirection: 'row',
