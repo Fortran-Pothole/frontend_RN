@@ -3,6 +3,7 @@ import React from 'react';
 import IconSetting from '../assets/icon_system_line.svg';
 import { useNavigation } from '@react-navigation/native';
 
+
 function Map() {
   const navigation = useNavigation();
 
