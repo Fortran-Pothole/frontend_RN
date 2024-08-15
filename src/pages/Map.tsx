@@ -1,7 +1,7 @@
-import {Text, View, TouchableOpacity } from 'react-native';
+import {Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
-import Icon from '../assets/icon_system_line.svg'
-import { useNavigation } from '@react-navigation/native';
+import Icon from '../assets/icon_system_line.svg';
+import {useNavigation} from '@react-navigation/native';
 
 function Map() {
   const navigation = useNavigation();
@@ -10,7 +10,12 @@ function Map() {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
-          <Icon name="settings-outline" size={25} color="#000" style={{ marginRight: 15 }} />
+          <Icon
+            name="settings-outline"
+            size={25}
+            color="#000"
+            style={{marginRight: 15}}
+          />
         </TouchableOpacity>
       ),
     });
@@ -22,6 +27,5 @@ function Map() {
     </View>
   );
 }
-
 
 export default Map;

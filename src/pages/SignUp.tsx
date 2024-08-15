@@ -6,19 +6,27 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
-function SignUp() {
+function SignUp({setLoggedIn}) {
   const [nickname, setNickname] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [isVerified, setIsVerified] = useState(false);
 
+  const [nicknameVerified, setNicknameVerified] = useState(false);
+  const [phoneNumberVerified, setPhoneNumberVerified] = useState(false);
+
   const [nicknameError, setNicknameError] = useState('');
   const [phoneNumberError, setPhoneNumberError] = useState('');
   const [verificationCodeError, setVerificationCodeError] = useState('');
 
-  const canGoNext = nickname && phoneNumber && verificationCode;
+  const navigation = useNavigation();
+
+  const canGoNext = nicknameVerified && phoneNumberVerified && isVerified;
+
   const isNicknameValid = nickname.trim().length > 0;
   const isPhoneNumberValid = phoneNumber.length === 11;
   const isVerificationCodeValid = verificationCode.trim().length > 0;
@@ -38,16 +46,19 @@ function SignUp() {
     }
   };
 
-  const handleNicknameChange = text =>
+  const handleNicknameChange = text => {
+    setNicknameVerified(false);
     handleTextChange(
       text,
       setNickname,
       setNicknameError,
       '닉네임을 정확히 입력해 주세요.',
     );
+  };
 
   const handlePhoneNumberChange = text => {
-    const numericText = text.replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
+    setPhoneNumberVerified(false);
+    const numericText = text.replace(/[^0-9]/g, '');
     if (numericText !== text) {
       setPhoneNumberError('전화번호를 정확히 입력해 주세요.');
     } else {
@@ -62,7 +73,7 @@ function SignUp() {
   };
 
   const handleVerificationCodeChange = text => {
-    const numericText = text.replace(/[^0-9]/g, ''); // 숫자 이외의 문자 제거
+    const numericText = text.replace(/[^0-9]/g, '');
     if (numericText !== text) {
       setVerificationCodeError('인증번호를 정확히 입력해 주세요.');
     } else {
@@ -82,7 +93,6 @@ function SignUp() {
       return;
     }
 
-    // Database check simulation
     const existingNicknames = [
       'existingUser1',
       'existingUser2',
@@ -91,40 +101,33 @@ function SignUp() {
 
     if (existingNicknames.includes(nickname)) {
       setNicknameError('이미 다른 사용자가 사용 중 입니다.');
+      setNicknameVerified(false);
     } else {
       setNicknameError('사용 가능한 닉네임입니다.');
+      setNicknameVerified(true);
     }
-
-    // Uncomment and use below code if the database is connected
-    /*
-    try {
-      const IDcheck = await dbService
-        .collection('User_Profile')
-        .where('displayName', '==', nickname)
-        .get();
-
-      if (IDcheck.docs.length == 0) {
-        setNicknameError('사용 가능한 닉네임입니다.');
-      } else {
-        setNicknameError('이미 다른 사용자가 사용 중 입니다.');
-      }
-    } catch (error) {
-      setNicknameError('닉네임 확인 중 오류가 발생했습니다.');
-    }
-    */
   };
 
   const handlePhoneNumberVerification = () => {
-    // 전화번호 인증 로직
+    setPhoneNumberVerified(true);
   };
 
   const handleVerificationCodeCheck = () => {
-    // 인증번호 확인 로직
-    setIsVerified(true); // 임시로 인증 완료로 설정
+    setIsVerified(true);
   };
 
   const handleSignUp = () => {
-    // 회원가입 로직
+    if (canGoNext) {
+      Alert.alert('알림', '회원가입이 완료되었습니다!');
+      setLoggedIn(true); // 로그인 상태로 전환
+
+      // 네비게이션을 지연시킨 후 이동
+      setTimeout(() => {
+        navigation.navigate('Map'); // 회원가입 완료 후 Map 화면으로 이동
+      }, 100); // 100ms 지연
+    } else {
+      Alert.alert('알림', '모든 확인 절차를 완료해 주세요.');
+    }
   };
 
   return (

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-//import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Map from './src/pages/Map';
 import NoticePothole from './src/pages/NoitcePothole';
 import OpenSourceLicenseScreen from './src/pages/OpenSource';
@@ -10,31 +9,30 @@ import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
 import {Setting, WebViewScreen} from './src/pages/Setting';
 
-//로그인 후 보이는 화면
+// 로그인 후 보이는 화면
 export type LoggedInParamList = {
   Map: undefined;
   Setting: undefined;
-  WebViewScreen: {url: stringm};
+  WebViewScreen: {url: string};
   OpenSourceLicenseScreen: undefined;
   NoticePothole: undefined;
 };
 
-//로그인하지 않았을 때 보이는 화면
+// 로그인하지 않았을 때 보이는 화면
 export type RootStackParamList = {
   SignIn: undefined;
   SignUp: undefined;
 };
 
-//const Tab = createBottomTabNavigator();
 const LoggedInStack = createNativeStackNavigator<LoggedInParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
-  //로그인하면 map화면만 보이고 로그인하지 않으면 로그인 화면만 보임
-  const [isLoggedIn, setLoggedIn] = useState(false);
+  const [isLoggedIn, setLoggedIn] = useState(false); // 로그인 상태 관리
+
   return (
     <NavigationContainer>
-      {isLoggedIn ? (
+      {isLoggedIn ? ( // 로그인 상태에 따라 다른 네비게이션 구조를 렌더링
         <LoggedInStack.Navigator>
           <LoggedInStack.Screen
             name="Map"
@@ -66,9 +64,9 @@ function App() {
         <Stack.Navigator>
           <Stack.Screen
             name="SignUp"
-            component={SignUp}
-            options={{title: '회원가입', headerShown: false}}
-          />
+            options={{title: '회원가입', headerShown: false}}>
+            {props => <SignUp {...props} setLoggedIn={setLoggedIn} />}
+          </Stack.Screen>
         </Stack.Navigator>
       )}
     </NavigationContainer>
