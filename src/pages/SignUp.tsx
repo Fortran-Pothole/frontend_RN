@@ -109,11 +109,13 @@ function SignUp({setLoggedIn}) {
   };
 
   const handlePhoneNumberVerification = () => {
+    // 전화번호 인증 로직
     setPhoneNumberVerified(true);
   };
 
   const handleVerificationCodeCheck = () => {
-    setIsVerified(true);
+    // 인증번호 확인 로직
+    setIsVerified(true); // 임시로 인증 완료로 설정
   };
 
   const handleSignUp = () => {
