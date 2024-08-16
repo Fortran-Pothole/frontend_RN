@@ -1,7 +1,7 @@
 import {Text, View} from 'react-native';
 import React from 'react';
 
-function NoticePothole() {
+function NoitcePothole() {
   return (
     <View>
       <Text>로그인</Text>
@@ -9,4 +9,4 @@ function NoticePothole() {
   );
 }
 
-export default NoticePothole;
+export default NoitcePothole;

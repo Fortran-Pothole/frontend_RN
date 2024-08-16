@@ -4,7 +4,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Map from './src/pages/Map';
 import VoiceNotice from './src/pages/VoiceNotice';
 import Withdraw from './src/pages/Withdraw';
-import NoticePothole from './src/pages/NoticePothole'; // 오타 수정: NoitcePothole -> NoticePothole
+import NoitcePothole from './src/pages/NoitcePothole'; // 오타 수정: NoitcePothole -> NoticePothole
 import OpenSourceLicenseScreen from './src/pages/OpenSource';
 import {useState} from 'react';
 import SignIn from './src/pages/SignIn';
@@ -18,7 +18,7 @@ export type LoggedInParamList = {
   Setting: undefined;
   WebViewScreen: {url: string};
   OpenSourceLicenseScreen: undefined;
-  NoticePothole: undefined;
+  NoitcePothole: undefined;
   Withdraw: undefined;
   VoiceNotice: undefined;
   PotholeReport: undefined; // PotholeReport 화면 추가
@@ -61,8 +61,8 @@ function App() {
             options={{title: 'OpenSource'}}
           />
           <LoggedInStack.Screen
-            name="NoticePothole"
-            component={NoticePothole}
+            name="NoitcePothole"
+            component={NoitcePothole}
             options={{title: '신고한 포트홀 조회'}}
           />
           <LoggedInStack.Screen
