@@ -4,12 +4,13 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Map from './src/pages/Map';
 import VoiceNotice from './src/pages/VoiceNotice';
 import Withdraw from './src/pages/Withdraw';
-import NoticePothole from './src/pages/NoitcePothole';
+import NoticePothole from './src/pages/NoticePothole'; // 오타 수정: NoitcePothole -> NoticePothole
 import OpenSourceLicenseScreen from './src/pages/OpenSource';
 import {useState} from 'react';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
 import {Setting, WebViewScreen} from './src/pages/Setting';
+import PotholeReport from './src/pages/PotholeReport'; // PotholeReport 화면 임포트
 
 // 로그인 후 보이는 화면
 export type LoggedInParamList = {
@@ -20,6 +21,7 @@ export type LoggedInParamList = {
   NoticePothole: undefined;
   Withdraw: undefined;
   VoiceNotice: undefined;
+  PotholeReport: undefined; // PotholeReport 화면 추가
 };
 
 // 로그인하지 않았을 때 보이는 화면
@@ -67,6 +69,11 @@ function App() {
             name="Withdraw"
             component={Withdraw}
             options={{title: '탈퇴하기'}}
+          />
+          <LoggedInStack.Screen
+            name="PotholeReport" // PotholeReport 화면 추가
+            component={PotholeReport}
+            options={{title: '포트홀 신고'}}
           />
         </LoggedInStack.Navigator>
       ) : (
