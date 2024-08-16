@@ -8,6 +8,23 @@ function Map() {
   const navigation = useNavigation();
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => console.log('수동 신고 pressed')}>
+            <Text style={{ color: '#000', fontSize: 16, marginRight: 20 }}>
+              수동 신고
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
+            <IconSetting name="settings-outline" size={25} color="#000" style={{ marginRight: 15 }} />
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [navigation]);
+
   const openVoiceNotice = () => {
     setIsModalVisible(true);
   };
