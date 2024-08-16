@@ -14,30 +14,23 @@ const PotholeReport = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>포트홀 신고</Text>
-        <TouchableOpacity style={styles.menuButton}>
-          <Image source={{uri: 'menu-icon-url'}} style={styles.menuIcon} />
-        </TouchableOpacity>
-      </View>
-
       <View style={styles.inputContainer}>
-        <View style={styles.labelContainer}>
-          <Text style={styles.label}>위치</Text>
+        <Text style={styles.label}>위치</Text>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="위치 입력"
+            value={location}
+            onChangeText={setLocation}
+          />
           <TouchableOpacity style={styles.locationButton}>
             <Image
               source={{uri: 'location-icon-url'}}
               style={styles.locationIcon}
             />
-            <Text>현재 위치 불러오기</Text>
+            <Text style={styles.locationText}>현재 위치 불러오기</Text>
           </TouchableOpacity>
         </View>
-        <TextInput
-          style={styles.textInput}
-          placeholder="위치 입력"
-          value={location}
-          onChangeText={setLocation}
-        />
       </View>
 
       <View style={styles.inputContainer}>
@@ -82,17 +75,19 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
   },
-  header: {
-    backgroundColor: '#007bff',
-    paddingVertical: 15,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  backButton: {
+    padding: 10,
+  },
+  backIcon: {
+    width: 20,
+    height: 20,
   },
   headerText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
+    flex: 1,
   },
   menuButton: {
     padding: 10,
@@ -104,14 +99,22 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginVertical: 10,
   },
-  labelContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   label: {
     fontSize: 16,
     marginBottom: 5,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    marginRight: 10,
   },
   locationButton: {
     flexDirection: 'row',
@@ -122,11 +125,8 @@ const styles = StyleSheet.create({
     height: 16,
     marginRight: 5,
   },
-  textInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
+  locationText: {
+    color: '#007bff',
   },
   textAreaInput: {
     borderWidth: 1,
@@ -150,17 +150,20 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 5,
+    backgroundColor: '#f0f0f0',
   },
   photoIcon: {
     width: 50,
     height: 50,
-    tintColor: '#ccc',
+    tintColor: '#aaa',
   },
   submitButton: {
     backgroundColor: '#007bff',
     paddingVertical: 15,
     borderRadius: 5,
     alignItems: 'center',
+    marginTop: 10,
   },
   submitButtonText: {
     color: '#fff',

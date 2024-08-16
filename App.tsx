@@ -71,9 +71,15 @@ function App() {
             options={{title: '탈퇴하기'}}
           />
           <LoggedInStack.Screen
-            name="PotholeReport" // PotholeReport 화면 추가
+            name="PotholeReport"
             component={PotholeReport}
-            options={{title: '포트홀 신고'}}
+            options={{
+              title: '포트홀 신고',
+              headerStyle: {
+                backgroundColor: '#266DFC',
+              },
+              headerTintColor: '#fff',
+            }}
           />
         </LoggedInStack.Navigator>
       ) : (
