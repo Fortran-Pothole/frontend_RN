@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import Voice from 'react-native-voice';
+import LinearGradient from 'react-native-linear-gradient'; 
 
-function VoiceNotice() {
+function VoiceNotice({ startRecognition }) {
   const [result, setResult] = useState('');
+  const [countdown, setCountdown] = useState(3);
+  const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
-    // 음성 인식 결과 콜백 설정
     Voice.onSpeechResults = onSpeechResults;
 
     return () => {
@@ -14,12 +16,10 @@ function VoiceNotice() {
     };
   }, []);
 
-  // 음성 인식 결과 처리
   const onSpeechResults = (event) => {
     setResult(event.value[0]);
   };
 
-  // 음성 인식 시작
   const startRecognizing = async () => {
     try {
       await Voice.start('ko-KR');
@@ -28,12 +28,35 @@ function VoiceNotice() {
     }
   };
 
+  useEffect(() => {
+    if (startRecognition) {
+      const countdownInterval = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+
+      if (countdown === 0) {
+        clearInterval(countdownInterval);
+        setIsRecording(true);
+        startRecognizing();
+      }
+
+      return () => clearInterval(countdownInterval);
+    }
+  }, [startRecognition, countdown]);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>음성 신고</Text>
-      <Text style={styles.transcript}>인식된 텍스트: {result}</Text>
-      <Button title="음성 인식 시작" onPress={startRecognizing} />
-    </View>
+    <LinearGradient
+      colors={['#1E3C72', '#2A5298', '#A1C4FD']}
+      style={styles.container}
+    >
+      <Text style={styles.title}>
+        {isRecording ? (result || '위치와 신고 내용을 말씀해주세요') : countdown}
+      </Text>
+      <Image
+        source={require('../assets/icon_mic_white.png')}
+        style={styles.micIcon}
+      />
+    </LinearGradient>
   );
 }
 
@@ -42,19 +65,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 16,
+    width: '100%',
+    height: '100%',
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
-    color: '#333',
-  },
-  transcript: {
+    color: '#fff',
     textAlign: 'center',
-    color: '#333',
-    marginBottom: 20,
-    fontSize: 18,
+    marginBottom: 40,
+  },
+  micIcon: {
+    width: 60,
+    height: 60,
   },
 });
 
