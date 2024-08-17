@@ -10,7 +10,8 @@ import {useState} from 'react';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
 import {Setting, WebViewScreen} from './src/pages/Setting';
-import PotholeReport from './src/pages/PotholeReport'; // PotholeReport 화면 임포트
+import PotholeReport from './src/pages/PotholeReport';
+import IconMenuBar from './src/assets/icon_menu_bar.svg';
 
 // 로그인 후 보이는 화면
 export type LoggedInParamList = {
@@ -79,6 +80,7 @@ function App() {
                 backgroundColor: '#266DFC',
               },
               headerTintColor: '#fff',
+              headerRight: () => <IconMenuBar width={30} height={30} />,
             }}
           />
         </LoggedInStack.Navigator>

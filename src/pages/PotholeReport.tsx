@@ -15,14 +15,8 @@ const PotholeReport = () => {
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>위치</Text>
-        <View style={styles.inputRow}>
-          <TextInput
-            style={styles.textInput}
-            placeholder="위치 입력"
-            value={location}
-            onChangeText={setLocation}
-          />
+        <View style={styles.labelContainer}>
+          <Text style={styles.label}>위치</Text>
           <TouchableOpacity style={styles.locationButton}>
             <Image
               source={{uri: 'location-icon-url'}}
@@ -31,6 +25,12 @@ const PotholeReport = () => {
             <Text style={styles.locationText}>현재 위치 불러오기</Text>
           </TouchableOpacity>
         </View>
+        <TextInput
+          style={styles.textInput}
+          placeholder="위치 입력"
+          value={location}
+          onChangeText={setLocation}
+        />
       </View>
 
       <View style={styles.inputContainer}>
@@ -62,8 +62,8 @@ const PotholeReport = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.submitButton}>
-        <Text style={styles.submitButtonText}>다음</Text>
+      <TouchableOpacity style={styles.signUpButton}>
+        <Text style={styles.signUpButtonText}>다음</Text>
       </TouchableOpacity>
     </View>
   );
@@ -73,48 +73,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    justifyContent: 'space-between',
     backgroundColor: '#fff',
-  },
-  backButton: {
-    padding: 10,
-  },
-  backIcon: {
-    width: 20,
-    height: 20,
-  },
-  headerText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    flex: 1,
-  },
-  menuButton: {
-    padding: 10,
-  },
-  menuIcon: {
-    width: 20,
-    height: 20,
   },
   inputContainer: {
     marginVertical: 10,
   },
-  label: {
-    fontSize: 16,
+  labelContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 5,
   },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  label: {
+    fontSize: 16,
+    color: '#000',
   },
   textInput: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 5,
-    flex: 1,
-    marginRight: 10,
+    backgroundColor: '#F5F5F5',
   },
   locationButton: {
     flexDirection: 'row',
@@ -135,6 +115,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     height: 100,
     textAlignVertical: 'top',
+    backgroundColor: '#F5F5F5',
   },
   photoContainer: {
     marginVertical: 20,
@@ -158,16 +139,18 @@ const styles = StyleSheet.create({
     height: 50,
     tintColor: '#aaa',
   },
-  submitButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 15,
-    borderRadius: 5,
+  signUpButton: {
+    padding: 16,
+    borderRadius: 25,
+    marginBottom: 20,
+    width: 300,
     alignItems: 'center',
-    marginTop: 10,
+    alignSelf: 'center',
+    backgroundColor: '#266DFC',
   },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
+  signUpButtonText: {
+    fontSize: 18,
+    color: 'white',
     fontWeight: 'bold',
   },
 });
