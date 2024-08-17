@@ -9,9 +9,10 @@ import {
 import LocationIcon from '../assets/icon_location.svg';
 import ImageIcon from '../assets/icon _image_gallery.svg';
 
-const PotholeReport = () => {
-  const [location, setLocation] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
+const PotholeReport = ({navigation}) => {
+  // navigation prop 추가
+  const [location, setLocation] = useState('');
+  const [description, setDescription] = useState('');
 
   return (
     <View style={styles.container}>
@@ -52,7 +53,10 @@ const PotholeReport = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.signUpButton}>
+      <TouchableOpacity
+        style={styles.signUpButton}
+        onPress={() => navigation.navigate('PotholeReportDetail')} // PotholeReportDetail로 이동
+      >
         <Text style={styles.signUpButtonText}>다음</Text>
       </TouchableOpacity>
     </View>

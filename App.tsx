@@ -11,6 +11,7 @@ import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
 import {Setting, WebViewScreen} from './src/pages/Setting';
 import PotholeReport from './src/pages/PotholeReport';
+import PotholeReportDetail from './src/pages/PotholeReportDetail';
 import IconMenuBar from './src/assets/icon_menu_bar.svg';
 
 // 로그인 후 보이는 화면
@@ -82,6 +83,11 @@ function App() {
               headerTintColor: '#fff',
               headerRight: () => <IconMenuBar width={30} height={30} />,
             }}
+          />
+          <LoggedInStack.Screen
+            name="PotholeReportDetail"
+            component={PotholeReportDetail} // PotholeReportDetail 화면 추가
+            options={{title: '포트홀 신고 글 확인'}}
           />
         </LoggedInStack.Navigator>
       ) : (
