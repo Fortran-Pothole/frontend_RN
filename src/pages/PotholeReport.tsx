@@ -4,9 +4,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Image,
   StyleSheet,
 } from 'react-native';
+import LocationIcon from '../assets/icon_location.svg';
+import ImageIcon from '../assets/icon _image_gallery.svg';
 
 const PotholeReport = () => {
   const [location, setLocation] = useState<string>('');
@@ -14,50 +15,39 @@ const PotholeReport = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.inputContainer}>
+      <View>
         <View style={styles.labelContainer}>
           <Text style={styles.label}>위치</Text>
           <TouchableOpacity style={styles.locationButton}>
-            <Image
-              source={{uri: 'location-icon-url'}}
-              style={styles.locationIcon}
-            />
+            <LocationIcon width={17} height={17} style={styles.locationIcon} />
             <Text style={styles.locationText}>현재 위치 불러오기</Text>
           </TouchableOpacity>
         </View>
         <TextInput
-          style={styles.textInput}
-          placeholder="위치 입력"
+          style={[styles.textInput, styles.locationTextInput]}
           value={location}
           onChangeText={setLocation}
         />
       </View>
 
-      <View style={styles.inputContainer}>
+      <View>
         <Text style={styles.label}>신고 내용</Text>
         <TextInput
-          style={styles.textAreaInput}
-          placeholder="신고 내용을 입력하세요"
+          style={[styles.textInput, styles.descriptionTextInput]} // 신고 내용 입력 필드 높이 설정
           value={description}
           onChangeText={setDescription}
           multiline
         />
       </View>
 
-      <View style={styles.photoContainer}>
+      <View>
         <Text style={styles.label}>사진 첨부</Text>
         <View style={styles.photoRow}>
-          <TouchableOpacity style={styles.photoBox}>
-            <Image
-              source={{uri: 'placeholder-image-url'}}
-              style={styles.photoIcon}
-            />
+          <TouchableOpacity style={styles.squarePhotoBox}>
+            <ImageIcon width={30} height={30} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.photoBox}>
-            <Image
-              source={{uri: 'placeholder-image-url'}}
-              style={styles.photoIcon}
-            />
+          <TouchableOpacity style={styles.squarePhotoBox}>
+            <ImageIcon width={30} height={30} />
           </TouchableOpacity>
         </View>
       </View>
@@ -72,12 +62,9 @@ const PotholeReport = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'space-between',
+    padding: 15,
+    justifyContent: 'flex-start',
     backgroundColor: '#fff',
-  },
-  inputContainer: {
-    marginVertical: 10,
   },
   labelContainer: {
     flexDirection: 'row',
@@ -86,63 +73,66 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   label: {
-    fontSize: 16,
+    fontSize: 17,
     color: '#000',
+    marginLeft: 18,
+    marginBottom: 8,
+    marginTop: 25,
+    fontWeight: 'bold',
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#F5F5F5',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 10,
     backgroundColor: '#F5F5F5',
+    color: '#000',
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  locationTextInput: {
+    height: 150, // 위치 입력 필드 높이 설정
+  },
+  descriptionTextInput: {
+    height: 200, // 신고 내용 입력 필드 높이 설정
   },
   locationButton: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   locationIcon: {
-    width: 16,
-    height: 16,
     marginRight: 5,
+    marginBottom: 5,
+    marginTop: 25,
   },
   locationText: {
-    color: '#007bff',
-  },
-  textAreaInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    height: 100,
-    textAlignVertical: 'top',
-    backgroundColor: '#F5F5F5',
-  },
-  photoContainer: {
-    marginVertical: 20,
+    color: '#000',
+    fontSize: 15,
+    marginRight: 13,
+    marginBottom: 5,
+    marginTop: 25,
   },
   photoRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
   },
-  photoBox: {
-    width: '48%',
-    height: 100,
+  squarePhotoBox: {
+    width: 120,
+    height: 120,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 5,
+    borderRadius: 10,
     backgroundColor: '#f0f0f0',
-  },
-  photoIcon: {
-    width: 50,
-    height: 50,
-    tintColor: '#aaa',
+    marginLeft: 10,
+    marginRight: 10,
   },
   signUpButton: {
-    padding: 16,
+    padding: 14,
     borderRadius: 25,
-    marginBottom: 20,
+    marginBottom: 15,
+    marginTop: 40,
     width: 300,
     alignItems: 'center',
     alignSelf: 'center',
