@@ -87,7 +87,14 @@ function App() {
           <LoggedInStack.Screen
             name="PotholeReportDetail"
             component={PotholeReportDetail} // PotholeReportDetail 화면 추가
-            options={{title: '포트홀 신고 글 확인'}}
+            options={{
+              title: '포트홀 신고',
+              headerStyle: {
+                backgroundColor: '#266DFC',
+              },
+              headerTintColor: '#fff',
+              headerRight: () => <IconMenuBar width={30} height={30} />,
+            }}
           />
         </LoggedInStack.Navigator>
       ) : (
