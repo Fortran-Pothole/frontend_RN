@@ -34,7 +34,7 @@ const PotholeReport = ({navigation}) => {
       <View>
         <Text style={styles.label}>신고 내용</Text>
         <TextInput
-          style={[styles.textInput, styles.descriptionTextInput]} // 신고 내용 입력 필드 높이 설정
+          style={[styles.textInput, styles.descriptionTextInput]}
           value={description}
           onChangeText={setDescription}
           multiline
@@ -54,10 +54,10 @@ const PotholeReport = ({navigation}) => {
       </View>
 
       <TouchableOpacity
-        style={styles.signUpButton}
+        style={styles.nextButton}
         onPress={() => navigation.navigate('PotholeReportDetail')} // PotholeReportDetail로 이동
       >
-        <Text style={styles.signUpButtonText}>다음</Text>
+        <Text style={styles.nextButtonText}>다음</Text>
       </TouchableOpacity>
     </View>
   );
@@ -95,10 +95,10 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   locationTextInput: {
-    height: 150, // 위치 입력 필드 높이 설정
+    height: 150,
   },
   descriptionTextInput: {
-    height: 200, // 신고 내용 입력 필드 높이 설정
+    height: 200,
   },
   locationButton: {
     flexDirection: 'row',
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
-  signUpButton: {
+  nextButton: {
     padding: 14,
     borderRadius: 25,
     marginBottom: 15,
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     backgroundColor: '#266DFC',
   },
-  signUpButtonText: {
+  nextButtonText: {
     fontSize: 18,
     color: 'white',
     fontWeight: 'bold',
