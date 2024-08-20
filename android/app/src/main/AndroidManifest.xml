@@ -12,9 +12,6 @@
       android:allowBackup="false"
       android:usesCleartextTraffic="true"
       android:theme="@style/AppTheme">
-      <meta-data 
-          android:name="com.naver.maps.map_CLIENT_ID"
-          android:value="g3mmdff2ox"/>
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -27,5 +24,8 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+      <meta-data 
+        android:name="com.naver.maps.map.CLIENT_ID"
+        android:value="${NAVER_MAP_CLIENT_ID}"/>
     </application>
 </manifest>
