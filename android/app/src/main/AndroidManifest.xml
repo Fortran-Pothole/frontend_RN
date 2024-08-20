@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.fortran">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
@@ -12,6 +12,9 @@
       android:allowBackup="false"
       android:usesCleartextTraffic="true"
       android:theme="@style/AppTheme">
+      <meta-data 
+          android:name="com.naver.maps.map_CLIENT_ID"
+          android:value="g3mmdff2ox"/>
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import IconSetting from '../assets/icon_system_line.svg';
 import { useNavigation } from '@react-navigation/native';
 import VoiceNotice from './VoiceNotice'; 
+import NaverMapView, {Maker, Path} from 'react-native-nmap';
 
 function Map() {
   const navigation = useNavigation();
@@ -33,16 +34,21 @@ function Map() {
     setIsModalVisible(false);
   };
 
+  // 고정된 위도 및 경도 값
+  const start = { latitude: 41.405, longitude: 2.17311 };
+  const end = { latitude: 41.405, longitude: 2.17311 };
+
   return (
     <View style={styles.container}>
       <Text>지도</Text>
 
-      <TouchableOpacity 
-          style={styles.micButton} 
-          onPress={openVoiceNotice}>
-        <Image 
-          source={require('../assets/microphone.png')} 
-          style={styles.micIcon} 
+
+      <TouchableOpacity
+        style={styles.micButton}
+        onPress={openVoiceNotice}>
+        <Image
+          source={require('../assets/microphone.png')}
+          style={styles.micIcon}
         />
       </TouchableOpacity>
 
