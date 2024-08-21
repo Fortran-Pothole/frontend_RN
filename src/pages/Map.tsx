@@ -1,11 +1,12 @@
-import { Text, View, TouchableOpacity, StyleSheet, Image, Modal, Button, Dimensions } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { Text, View, TouchableOpacity, StyleSheet, Image, Modal, Button, Dimensions, PanResponder} from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
 import IconSetting from '../assets/icon_system_line.svg';
 import { useNavigation } from '@react-navigation/native';
 import VoiceNotice from './VoiceNotice'; 
 import NaverMapView, { Marker, Path } from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
 import checkDistance from '../../types/checkDistance';
+import { movePosition, getDirection } from '../../types/locationUtils';
 
 function Map() {
   const navigation = useNavigation();
@@ -13,11 +14,28 @@ function Map() {
   const openVoiceNotice = () => { setIsModalVisible(true);};
   const closeVoiceNotice = () => { setIsModalVisible(false);};
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
+  const moveIntervalRef = useRef(null);
   
   const [myPosition, setMyPosition] = useState<{
     latitude: number;
     longitude: Number;
   } | null>(null);
+
+    // 드래그 감지
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: (evt, gestureState) => {
+        const direction = getDirection(gestureState.dx, gestureState.dy);
+        moveIntervalRef.current = setInterval(() => {
+          setMyPosition(prevPosition => movePosition(prevPosition, direction));
+        }, 100);
+      },
+      onPanResponderRelease: () => {
+        clearInterval(moveIntervalRef.current);
+      },
+    })
+  ).current;
 
   // 고정된 포트홀 위치
   const potholePosition = { latitude: 37.6538695717525, longitude: 127.01634111399655 };
@@ -105,15 +123,6 @@ function Map() {
           caption={{text: '포트홀'}}
           image={require('../assets/pothole.png')}
         />
-        {/* <Path
-          coordinates={[
-            {
-              latitude: start.latitude,
-              longitude: start.longitude,
-            },
-            { latitude: end.latitude, longitude: end.longitude },
-          ]}
-        /> */}
         <Marker
           coordinate={{ 
             latitude: myPosition?.latitude || start.latitude,
@@ -234,6 +243,18 @@ const styles = StyleSheet.create({
     width: '100%', 
     height: '100%',
     resizeMode: 'contain', 
+  },
+  controlContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    width: 100,
+    height: 100,
+  },
+  controlImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 });
 
