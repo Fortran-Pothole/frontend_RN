@@ -1,13 +1,41 @@
-import { Text, View, TouchableOpacity, StyleSheet, Image, Modal, Button} from 'react-native';
-import React, { useState } from 'react';
+import { Text, View, TouchableOpacity, StyleSheet, Image, Modal, Button, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import IconSetting from '../assets/icon_system_line.svg';
 import { useNavigation } from '@react-navigation/native';
 import VoiceNotice from './VoiceNotice'; 
-import NaverMapView, {Maker, Path} from 'react-native-nmap';
+import NaverMapView, { Marker, Path } from 'react-native-nmap';
+import Geolocation from '@react-native-community/geolocation';
 
 function Map() {
   const navigation = useNavigation();
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  useEffect(() => {
+    // 현재 위치 가져오기
+    Geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords;
+        setMyPosition({ latitude, longitude });
+      },
+      error => console.log(error),
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+
+    // 위치 변경 감지
+    const watchId = Geolocation.watchPosition(
+      position => {
+        const { latitude, longitude } = position.coords;
+        setMyPosition({ latitude, longitude });
+      },
+      error => console.log(error),
+      { enableHighAccuracy: true, distanceFilter: 10 }
+    );
+
+    return () => {
+      // 컴포넌트 언마운트 시 위치 감지를 중지
+      Geolocation.clearWatch(watchId);
+    };
+  }, []);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -34,14 +62,51 @@ function Map() {
     setIsModalVisible(false);
   };
 
-  // 고정된 위도 및 경도 값
-  const start = { latitude: 41.405, longitude: 2.17311 };
-  const end = { latitude: 41.405, longitude: 2.17311 };
+  const [myPosition, setMyPosition] = useState<{
+    latitude: number;
+    longitude: Number;
+  } | null>(null);
 
   return (
     <View style={styles.container}>
-      <Text>지도</Text>
-
+      <NaverMapView
+        style={styles.map}
+        zoomControl={false}
+        center={{
+          zoom: 17,
+          tilt: 50,
+          latitude: myPosition?.latitude || start.latitude,
+          longitude: myPosition?.longitude || start.longitude,
+        }}>
+        <Marker
+          coordinate={{
+            latitude: myPosition?.latitude || start.latitude,
+            longitude: myPosition?.longitude || start.longitude,
+          }}
+          width={15}
+          height={15}
+          anchor={{x: 0.5, y:0.5}}
+          caption={{text: '도착'}}
+          image={require('../assets/red-dot.png')}
+        />
+        <Path
+          coordinates={[
+            {
+              latitude: start.latitude,
+              longitude: start.longitude,
+            },
+            { latitude: end.latitude, longitude: end.longitude },
+          ]}
+        />
+        <Marker
+          coordinate={{ latitude: end.latitude, longitude: end.longitude }}
+          width={15}
+          height={15}
+          anchor={{x: 0.5, y:0.5}}
+          caption={{text: '출발'}}
+          image={require('../assets/blue-dot.png')}
+        />
+      </NaverMapView>
 
       <TouchableOpacity
         style={styles.micButton}
@@ -62,37 +127,42 @@ function Map() {
           <Button title="닫기" onPress={closeVoiceNotice} />
         </View>
       </Modal>
-
     </View>
   );
 }
 
+// 고정된 위도 및 경도 값
+const start = { latitude: 41.405, longitude: 2.17311 };
+const end = { latitude: 41.405, longitude: 2.17311 };
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+  },
+  map: {
+    flex: 1,
   },
   micButton: {
     position: 'absolute',
-    bottom: 50, 
-    left: '50%', 
-    transform: [{ translateX: -30 }], 
+    bottom: 50,
+    left: '50%',
+    transform: [{ translateX: -30 }],
     width: 60,
     height: 60,
     borderRadius: 30,
     backgroundColor: '#003366',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5, 
+    elevation: 5,
   },
   micIcon: {
-    position: 'absolute',
-    width: 80, 
+    width: 80,
     height: 80,
   },
   modalBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
