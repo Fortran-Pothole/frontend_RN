@@ -5,10 +5,24 @@ import { useNavigation } from '@react-navigation/native';
 import VoiceNotice from './VoiceNotice'; 
 import NaverMapView, { Marker, Path } from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
+import checkDistance from '../../types/checkDistance';
 
 function Map() {
   const navigation = useNavigation();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const openVoiceNotice = () => { setIsModalVisible(true);};
+  const closeVoiceNotice = () => { setIsModalVisible(false);};
+  const [showPotholeInfo, setShowPotholeInfo] = useState(false);
+  
+  const [myPosition, setMyPosition] = useState<{
+    latitude: number;
+    longitude: Number;
+  } | null>(null);
+
+  // 고정된 포트홀 위치
+  const potholePosition = { latitude: 37.6538695717525, longitude: 127.01634111399655 };
+  // 고정된 위도 및 경도 값
+  const start = { latitude: 41.405, longitude: 2.17311 };
 
   useEffect(() => {
     // 현재 위치 가져오기
@@ -16,6 +30,13 @@ function Map() {
       position => {
         const { latitude, longitude } = position.coords;
         setMyPosition({ latitude, longitude });
+
+        const distance = checkDistance({ latitude, longitude }, potholePosition);
+        if (distance <= 500) {
+          setShowPotholeInfo(true);
+        } else {
+          setShowPotholeInfo(false);
+        }
       },
       error => console.log(error),
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
@@ -26,6 +47,13 @@ function Map() {
       position => {
         const { latitude, longitude } = position.coords;
         setMyPosition({ latitude, longitude });
+
+        const distance = checkDistance({ latitude, longitude }, potholePosition);
+        if (distance <= 1000) {
+          setShowPotholeInfo(true);
+        } else {
+          setShowPotholeInfo(false);
+        }
       },
       error => console.log(error),
       { enableHighAccuracy: true, distanceFilter: 10 }
@@ -54,18 +82,6 @@ function Map() {
     });
   }, [navigation]);
 
-  const openVoiceNotice = () => {
-    setIsModalVisible(true);
-  };
-
-  const closeVoiceNotice = () => {
-    setIsModalVisible(false);
-  };
-
-  const [myPosition, setMyPosition] = useState<{
-    latitude: number;
-    longitude: Number;
-  } | null>(null);
 
   return (
     <View style={styles.container}>
@@ -80,16 +96,16 @@ function Map() {
         }}>
         <Marker
           coordinate={{
-            latitude: 37.65295948806934,
-            longitude: 127.01698684530261,
+            latitude: potholePosition.latitude,
+            longitude: potholePosition.longitude,
           }}
           width={35}
           height={35}
           anchor={{x: 0.5, y:0.5}}
-          caption={{text: '도착'}}
+          caption={{text: '포트홀'}}
           image={require('../assets/pothole.png')}
         />
-        <Path
+        {/* <Path
           coordinates={[
             {
               latitude: start.latitude,
@@ -97,7 +113,7 @@ function Map() {
             },
             { latitude: end.latitude, longitude: end.longitude },
           ]}
-        />
+        /> */}
         <Marker
           coordinate={{ 
             latitude: myPosition?.latitude || start.latitude,
@@ -110,6 +126,24 @@ function Map() {
           image={require('../assets/icon_current_location.png')}
         />
       </NaverMapView>
+
+      {showPotholeInfo && (
+        <View style={styles.potholeInfoContainer}>
+          <Text style={styles.potholeInfoHeader}>포트홀 정보</Text>
+          <Text style={styles.potholeInfoText}>전방 300m</Text>
+          <Text style={styles.potholeInfoText}>포트홀 위험도: 주의</Text>
+          <Text style={styles.potholeInfoText}>신고 수: 2</Text>
+          <Text style={styles.potholeInfoText}>위도: {potholePosition.latitude.toFixed(5)}</Text>
+          <Text style={styles.potholeInfoText}>경도: {potholePosition.longitude.toFixed(5)}</Text>
+
+          <View style={styles.imageContainer}>
+            <Image
+              source={require('../assets/blue-dot.png')}
+              style={styles.potholeImage}
+            />
+          </View>
+        </View>
+)}
 
       <TouchableOpacity
         style={styles.micButton}
@@ -134,10 +168,6 @@ function Map() {
   );
 }
 
-// 고정된 위도 및 경도 값
-const start = { latitude: 41.405, longitude: 2.17311 };
-const end = { latitude: 41.405, longitude: 2.17311 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -151,8 +181,8 @@ const styles = StyleSheet.create({
     bottom: 50,
     left: '50%',
     transform: [{ translateX: -30 }],
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 30,
     backgroundColor: '#003366',
     justifyContent: 'center',
@@ -168,6 +198,42 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  potholeInfoContainer: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 10,
+    elevation: 5,
+    zIndex: 1000,
+    width: 200,
+    height: 320,
+    borderColor: '#ccc',
+  },
+  potholeInfoHeader: {
+    color: 'black',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15, 
+  },
+  potholeInfoText: {
+    color: 'black',
+    fontSize: 16,
+    marginBottom: 5, 
+  },
+  imageContainer: {
+    marginTop: 15,
+    width: '100%',
+    height: 100,
+    alignItems: 'center',
+    justifyContent: 'center', 
+  },
+  potholeImage: {
+    width: '100%', 
+    height: '100%',
+    resizeMode: 'contain', 
   },
 });
 
