@@ -80,14 +80,14 @@ function Map() {
         }}>
         <Marker
           coordinate={{
-            latitude: myPosition?.latitude || start.latitude,
-            longitude: myPosition?.longitude || start.longitude,
+            latitude: 37.65295948806934,
+            longitude: 127.01698684530261,
           }}
-          width={15}
-          height={15}
+          width={35}
+          height={35}
           anchor={{x: 0.5, y:0.5}}
           caption={{text: '도착'}}
-          image={require('../assets/red-dot.png')}
+          image={require('../assets/pothole.png')}
         />
         <Path
           coordinates={[
@@ -99,12 +99,15 @@ function Map() {
           ]}
         />
         <Marker
-          coordinate={{ latitude: end.latitude, longitude: end.longitude }}
-          width={15}
-          height={15}
+          coordinate={{ 
+            latitude: myPosition?.latitude || start.latitude,
+            longitude: myPosition?.longitude || start.longitude,
+          }}
+          width={40}
+          height={40}
           anchor={{x: 0.5, y:0.5}}
-          caption={{text: '출발'}}
-          image={require('../assets/blue-dot.png')}
+          caption={{text: '나의 위치'}}
+          image={require('../assets/icon_current_location.png')}
         />
       </NaverMapView>
 
