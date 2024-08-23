@@ -18,27 +18,27 @@ function Map() {
   
   const [myPosition, setMyPosition] = useState<{
     latitude: number;
-    longitude: Number;
+    longitude: number;
   } | null>(null);
 
-    // 드래그 감지
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderGrant: (evt, gestureState) => {
-        const direction = getDirection(gestureState.dx, gestureState.dy);
-        moveIntervalRef.current = setInterval(() => {
-          setMyPosition(prevPosition => movePosition(prevPosition, direction));
-        }, 100);
-      },
-      onPanResponderRelease: () => {
-        clearInterval(moveIntervalRef.current);
-      },
-    })
-  ).current;
+  //   // 드래그 감지
+  // const panResponder = useRef(
+  //   PanResponder.create({
+  //     onStartShouldSetPanResponder: () => true,
+  //     onPanResponderGrant: (evt, gestureState) => {
+  //       const direction = getDirection(gestureState.dx, gestureState.dy);
+  //       moveIntervalRef.current = setInterval(() => {
+  //         setMyPosition(prevPosition => movePosition(prevPosition, direction));
+  //       }, 100);
+  //     },
+  //     onPanResponderRelease: () => {
+  //       clearInterval(moveIntervalRef.current);
+  //     },
+  //   })
+  // ).current;
 
   // 고정된 포트홀 위치
-  const potholePosition = { latitude: 37.6538695717525, longitude: 127.01634111399655 };
+  const potholePosition = { latitude: 37.246328632957, longitude:  127.07310334031295 };
   // 고정된 위도 및 경도 값
   const start = { latitude: 41.405, longitude: 2.17311 };
 
@@ -47,9 +47,12 @@ function Map() {
     Geolocation.getCurrentPosition(
       position => {
         const { latitude, longitude } = position.coords;
+        console.log('현재 위치:', latitude, longitude);
         setMyPosition({ latitude, longitude });
 
+
         const distance = checkDistance({ latitude, longitude }, potholePosition);
+        console.log('포트홀까지 거리:', distance);
         if (distance <= 500) {
           setShowPotholeInfo(true);
         } else {
@@ -57,13 +60,14 @@ function Map() {
         }
       },
       error => console.log(error),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      { enableHighAccuracy: false, timeout: 30000, maximumAge: 10000 }
     );
 
     // 위치 변경 감지
     const watchId = Geolocation.watchPosition(
       position => {
         const { latitude, longitude } = position.coords;
+        console.log('위치 업데이트:', latitude, longitude);
         setMyPosition({ latitude, longitude });
 
         const distance = checkDistance({ latitude, longitude }, potholePosition);
