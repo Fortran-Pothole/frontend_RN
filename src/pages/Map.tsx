@@ -7,6 +7,7 @@ import NaverMapView, { Marker, Path } from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
 import checkDistance from '../../types/checkDistance';
 import { movePosition, getDirection } from '../../types/locationUtils';
+import CircleComponent from '../assets/CircleComponent';
 
 function Map() {
   const navigation = useNavigation();
@@ -21,24 +22,24 @@ function Map() {
     longitude: number;
   } | null>(null);
 
-  //   // 드래그 감지
-  // const panResponder = useRef(
-  //   PanResponder.create({
-  //     onStartShouldSetPanResponder: () => true,
-  //     onPanResponderGrant: (evt, gestureState) => {
-  //       const direction = getDirection(gestureState.dx, gestureState.dy);
-  //       moveIntervalRef.current = setInterval(() => {
-  //         setMyPosition(prevPosition => movePosition(prevPosition, direction));
-  //       }, 100);
-  //     },
-  //     onPanResponderRelease: () => {
-  //       clearInterval(moveIntervalRef.current);
-  //     },
-  //   })
-  // ).current;
+    // 드래그 감지
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: (evt, gestureState) => {
+        const direction = getDirection(gestureState.dx, gestureState.dy);
+        moveIntervalRef.current = setInterval(() => {
+          setMyPosition(prevPosition => movePosition(prevPosition, direction));
+        }, 100);
+      },
+      onPanResponderRelease: () => {
+        clearInterval(moveIntervalRef.current);
+      },
+    })
+  ).current;
 
   // 고정된 포트홀 위치
-  const potholePosition = { latitude: 37.246328632957, longitude:  127.07310334031295 };
+  const potholePosition = { latitude: 37.245219498820546, longitude: 127.07290024649016 };
   // 고정된 위도 및 경도 값
   const start = { latitude: 41.405, longitude: 2.17311 };
 
@@ -47,12 +48,9 @@ function Map() {
     Geolocation.getCurrentPosition(
       position => {
         const { latitude, longitude } = position.coords;
-        console.log('현재 위치:', latitude, longitude);
         setMyPosition({ latitude, longitude });
 
-
         const distance = checkDistance({ latitude, longitude }, potholePosition);
-        console.log('포트홀까지 거리:', distance);
         if (distance <= 500) {
           setShowPotholeInfo(true);
         } else {
@@ -67,7 +65,6 @@ function Map() {
     const watchId = Geolocation.watchPosition(
       position => {
         const { latitude, longitude } = position.coords;
-        console.log('위치 업데이트:', latitude, longitude);
         setMyPosition({ latitude, longitude });
 
         const distance = checkDistance({ latitude, longitude }, potholePosition);
@@ -143,7 +140,7 @@ function Map() {
       {showPotholeInfo && (
         <View style={styles.potholeInfoContainer}>
           <Text style={styles.potholeInfoHeader}>포트홀 정보</Text>
-          <Text style={styles.potholeInfoText}>전방 300m</Text>
+          <Text style={styles.potholeInfoText}>전방 {Math.round(checkDistance(myPosition, potholePosition))}m</Text>
           <Text style={styles.potholeInfoText}>포트홀 위험도: 주의</Text>
           <Text style={styles.potholeInfoText}>신고 수: 2</Text>
           <Text style={styles.potholeInfoText}>위도: {potholePosition.latitude.toFixed(5)}</Text>
@@ -156,7 +153,9 @@ function Map() {
             />
           </View>
         </View>
-)}
+      )}
+
+      <CircleComponent/>
 
       <TouchableOpacity
         style={styles.micButton}
@@ -250,10 +249,15 @@ const styles = StyleSheet.create({
   },
   controlContainer: {
     position: 'absolute',
-    bottom: 20,
-    left: 20,
-    width: 100,
-    height: 100,
+    bottom: 50,  
+    left: 20,   
+    width: 50,   
+    height: 50,  
+    borderRadius: 25, 
+    backgroundColor: '#003366',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
   },
   controlImage: {
     width: '100%',
