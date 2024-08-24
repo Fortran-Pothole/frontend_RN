@@ -6,6 +6,7 @@ import VoiceNotice from './VoiceNotice';
 import NaverMapView, { Marker, Path, LayerGroup }from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
 import checkDistance from '../../types/checkDistance';
+import Tts from 'react-native-tts';
 import { movePosition, getDirection, moveTowardsEnd } from '../../types/locationUtils';
 import CircleComponent from '../components/CircleComponent';
 import PotholeInfo from '../components/PotholeInfo';
@@ -18,10 +19,11 @@ function Map() {
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
   const moveIntervalRef = useRef(null);
   const mapRef = useRef(null);
+  const ttsIntervalRef = useRef(null); 
   
   const [myPosition, setMyPosition] = useState({
-    latitude: 37.24791218146621,
-    longitude: 127.07672291805355
+    latitude: 37.322119339148045,
+    longitude: 127.10352593988907
   });
 
   const enableLayerGroup = (group) => {
@@ -31,9 +33,9 @@ function Map() {
   };
 
   // 고정된 포트홀 위치
-  const potholePosition = { latitude: 37.24791218146621, longitude: 127.07872291805355 };
-  const start = { latitude: 37.24791218146621, longitude: 127.07672291805355 };
-  const end = { latitude: 37.2491948394616, longitude: 127.08214523069911};
+  const potholePosition = { latitude: 37.34518559022692, longitude: 127.1036930268635 };
+  const start = { latitude: 37.31207444155034, longitude: 127.10358835825805 };
+  const end = { latitude:  37.34518559022692, longitude: 127.1036930268635};
 
   useEffect(() => {
     enableLayerGroup(LayerGroup.LAYER_GROUP_TRAFFIC);
@@ -46,8 +48,37 @@ function Map() {
     );
     return () => {
       clearInterval(moveIntervalRef.current);
+      clearInterval(ttsIntervalRef.current);
     }
   }, [myPosition]);
+
+  useEffect(() => {
+    Tts.addEventListener('tts-start', event => console.log('TTS 시작:', event));
+    Tts.addEventListener('tts-finish', event => console.log('TTS 종료:', event));
+    Tts.addEventListener('tts-cancel', event => console.log('TTS 취소:', event));
+    Tts.addEventListener('tts-error', event => console.log('TTS 오류:', event));
+  
+    return () => {
+      Tts.removeAllListeners();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (showPotholeInfo) {
+      Tts.stop();
+      Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다.`);
+      
+      ttsIntervalRef.current = setInterval(() => {
+        Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다.`);
+      }, 3000);
+    } else {
+      clearInterval(ttsIntervalRef.current); // Stop TTS when pothole info is hidden
+    }
+
+    return () => {
+      clearInterval(ttsIntervalRef.current);
+    }
+  }, [showPotholeInfo]);
 
 
   React.useLayoutEffect(() => {
@@ -75,19 +106,26 @@ function Map() {
         style={styles.map}
         zoomControl={false}
         scrollGesturesEnabled={false}
-        zoomGesturesEnabled={false}
+        zoomGesturesEnabled={true}
         tiltGesturesEnabled={false}
         rotateGesturesEnabled={false}
         stopGesturesEnabled={false}
         center={{
           zoom: 16,
           tilt: 100,
-          bearing: 90,
+          bearing: 0,
           latitude: myPosition?.latitude || start.latitude,
           longitude: myPosition?.longitude || start.longitude,
         }}>
         <Marker coordinate={potholePosition} width={35} height={35} caption={{ text: '포트홀' }} image={require('../assets/pothole.png')} />
-        <Path coordinates={[start, end]} />
+        <Path 
+          coordinates={[start, end]}
+          width={3}
+          color='#266DFC'
+          outlineColor='#266DFC'
+          passedColor='#FE6F7B'
+          outlineWidth = {3}
+        />
         <Marker coordinate={myPosition} width={40} height={40} caption={{ text: '나의 위치' }} image={require('../assets/icon_current_location.png')} />
       </NaverMapView>
 
