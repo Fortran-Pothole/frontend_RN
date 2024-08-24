@@ -5,8 +5,8 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
   ScrollView,
+  Image,
 } from 'react-native';
 import LocationIcon from '../assets/icon_location.svg';
 import ImageIcon from '../assets/icon _image_gallery.svg';
@@ -21,7 +21,7 @@ const PotholeReport = ({navigation}) => {
     location.trim().length > 0 && description.trim().length > 0;
 
   const handleNextPress = () => {
-    navigation.navigate('PotholeReportDetail', {location, description});
+    navigation.navigate('PotholeReportDetail', {location, description, photos});
   };
 
   const handlePhotoUpload = () => {
@@ -166,11 +166,10 @@ const styles = StyleSheet.create({
   photoRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    marginBottom: 20, // 아래쪽 간격 추가
+    marginBottom: 20,
   },
   squarePhotoBox: {
-    width: 100, // 이미지 크기를 줄여 한 줄에 3개 표시
+    width: 100,
     height: 100,
     borderWidth: 1,
     borderColor: '#F5F5F5',
@@ -180,21 +179,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     marginLeft: 10,
     marginRight: 10,
-    marginBottom: 15, // 하단 간격 추가
+    marginBottom: 15,
   },
   uploadedPhoto: {
-    width: 100, // 이미지 크기를 줄여 한 줄에 3개 표시
+    width: 100,
     height: 100,
     borderRadius: 10,
     marginLeft: 10,
     marginRight: 10,
-    marginBottom: 15, // 하단 간격 추가
+    marginBottom: 15,
   },
   nextButton: {
     padding: 14,
     borderRadius: 25,
     marginBottom: 15,
-    marginTop: 10,
+    marginTop: 5,
     width: 300,
     alignItems: 'center',
     alignSelf: 'center',
