@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {Provider} from 'react-redux'; // react-redux에서 Provider import
-import store from './src/store'; // Redux store import
+import {Provider} from 'react-redux';
+import store from './src/store';
 import Map from './src/pages/Map';
 import VoiceNotice from './src/pages/VoiceNotice';
 import Withdraw from './src/pages/Withdraw';
@@ -15,6 +15,7 @@ import PotholeReport from './src/pages/PotholeReport';
 import PotholeReportDetail from './src/pages/PotholeReportDetail';
 import PotholeReportList from './src/pages/PotholeReportList';
 import IconMenuBar from './src/assets/icon_menu_bar.svg';
+import {TouchableOpacity} from 'react-native';
 
 export type LoggedInParamList = {
   Map: undefined;
@@ -84,31 +85,55 @@ function App() {
                   backgroundColor: '#266DFC',
                 },
                 headerTintColor: '#fff',
-                headerRight: () => <IconMenuBar width={30} height={30} />,
+                headerRight: () => {
+                  const navigation = useNavigation();
+                  return (
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('PotholeReportList')}>
+                      <IconMenuBar width={30} height={30} />
+                    </TouchableOpacity>
+                  );
+                },
               }}
             />
             <LoggedInStack.Screen
               name="PotholeReportDetail"
               component={PotholeReportDetail}
               options={{
-                title: '포트홀 신고 Detail',
+                title: '포트홀 신고',
                 headerStyle: {
                   backgroundColor: '#266DFC',
                 },
                 headerTintColor: '#fff',
-                headerRight: () => <IconMenuBar width={30} height={30} />,
+                headerRight: () => {
+                  const navigation = useNavigation();
+                  return (
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('PotholeReportList')}>
+                      <IconMenuBar width={30} height={30} />
+                    </TouchableOpacity>
+                  );
+                },
               }}
             />
             <LoggedInStack.Screen
               name="PotholeReportList"
-              component={PotholeReportList} // PotholeReportList 추가
+              component={PotholeReportList}
               options={{
                 title: '신고 목록',
                 headerStyle: {
                   backgroundColor: '#266DFC',
                 },
                 headerTintColor: '#fff',
-                headerRight: () => <IconMenuBar width={30} height={30} />,
+                headerRight: () => {
+                  const navigation = useNavigation();
+                  return (
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('PotholeReportList')}>
+                      <IconMenuBar width={30} height={30} />
+                    </TouchableOpacity>
+                  );
+                },
               }}
             />
           </LoggedInStack.Navigator>
