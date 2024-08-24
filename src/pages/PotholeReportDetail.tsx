@@ -21,11 +21,15 @@ const PotholeReportDetail = () => {
   const [description, setDescription] = useState(
     route.params?.description || '',
   );
-  const [institution, setInstitution] = useState('');
-  const [contact, setContact] = useState('');
-  const [reportDate, setReportDate] = useState('');
+  const [institution, setInstitution] = useState(
+    route.params?.institution || '',
+  );
+  const [contact, setContact] = useState(route.params?.contact || '');
+  const [reportDate, setReportDate] = useState(route.params?.reportDate || '');
   const [phoneNumberError, setPhoneNumberError] = useState('');
   const [photos, setPhotos] = useState(route.params?.photos || []); // PotholeReport에서 전달된 사진
+
+  const readOnly = route.params?.readOnly || false;
 
   const isSubmitButtonEnabled =
     location.trim().length > 0 &&
@@ -45,6 +49,10 @@ const PotholeReportDetail = () => {
   };
 
   const handleSubmit = () => {
+    if (readOnly) {
+      return; // 읽기 전용 모드에서는 저장을 막음
+    }
+
     if (contact.length !== 11) {
       setPhoneNumberError('전화번호를 정확히 입력해 주세요.');
       return;
@@ -72,6 +80,9 @@ const PotholeReportDetail = () => {
           style={[styles.textInput, styles.locationTextInput]}
           value={location}
           onChangeText={setLocation}
+          editable={!readOnly}
+          selectTextOnFocus={!readOnly}
+          color="#000" // 텍스트 색상 검정으로 설정
         />
 
         <Text style={styles.label}>신고 내용</Text>
@@ -79,7 +90,10 @@ const PotholeReportDetail = () => {
           style={styles.textArea}
           value={description}
           onChangeText={setDescription}
+          editable={!readOnly}
+          selectTextOnFocus={!readOnly}
           multiline
+          color="#000" // 텍스트 색상 검정으로 설정
         />
 
         <Text style={styles.label}>접수 기관</Text>
@@ -87,6 +101,9 @@ const PotholeReportDetail = () => {
           style={styles.textInput}
           value={institution}
           onChangeText={setInstitution}
+          editable={!readOnly}
+          selectTextOnFocus={!readOnly}
+          color="#000" // 텍스트 색상 검정으로 설정
         />
 
         <Text style={styles.label}>연락처</Text>
@@ -99,8 +116,11 @@ const PotholeReportDetail = () => {
           onChangeText={handleContactChange}
           keyboardType="numeric"
           maxLength={11}
+          editable={!readOnly}
+          selectTextOnFocus={!readOnly}
+          color="#000" // 텍스트 색상 검정으로 설정
         />
-        {phoneNumberError ? (
+        {phoneNumberError && !readOnly ? (
           <Text style={styles.errorText}>{phoneNumberError}</Text>
         ) : null}
 
@@ -109,6 +129,9 @@ const PotholeReportDetail = () => {
           style={styles.textInput}
           value={reportDate}
           onChangeText={setReportDate}
+          editable={!readOnly}
+          selectTextOnFocus={!readOnly}
+          color="#000" // 텍스트 색상 검정으로 설정
         />
 
         <Text style={styles.label}>사진 첨부</Text>
@@ -122,15 +145,17 @@ const PotholeReportDetail = () => {
           ))}
         </View>
 
-        <TouchableOpacity
-          style={[
-            styles.submitButton,
-            {backgroundColor: isSubmitButtonEnabled ? '#153C8B' : '#727783'},
-          ]}
-          onPress={handleSubmit}
-          disabled={!isSubmitButtonEnabled}>
-          <Text style={styles.submitButtonText}>신고</Text>
-        </TouchableOpacity>
+        {!readOnly && (
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              {backgroundColor: isSubmitButtonEnabled ? '#153C8B' : '#727783'},
+            ]}
+            onPress={handleSubmit}
+            disabled={!isSubmitButtonEnabled}>
+            <Text style={styles.submitButtonText}>신고</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </ScrollView>
   );
@@ -178,18 +203,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 20,
-  },
-  squarePhotoBox: {
-    width: 100,
-    height: 100,
-    borderWidth: 1,
-    borderColor: '#F5F5F5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
-    backgroundColor: '#F0F0F0',
-    marginRight: 10,
-    marginBottom: 15,
   },
   uploadedPhoto: {
     width: 100,

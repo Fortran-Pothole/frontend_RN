@@ -91,7 +91,7 @@ function App() {
               name="PotholeReportDetail"
               component={PotholeReportDetail}
               options={{
-                title: '포트홀 신고',
+                title: '포트홀 신고 Detail',
                 headerStyle: {
                   backgroundColor: '#266DFC',
                 },
