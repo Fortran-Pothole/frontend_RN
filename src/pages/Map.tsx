@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import IconSetting from '../assets/icon_system_line.svg';
 import { useNavigation } from '@react-navigation/native';
 import VoiceNotice from './VoiceNotice'; 
-import NaverMapView, { Marker, Path, CameraPosition }from 'react-native-nmap';
+import NaverMapView, { Marker, Path, LayerGroup }from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
 import checkDistance from '../../types/checkDistance';
 import { movePosition, getDirection, moveTowardsEnd } from '../../types/locationUtils';
@@ -17,16 +17,27 @@ function Map() {
   const closeVoiceNotice = () => { setIsModalVisible(false);};
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
   const moveIntervalRef = useRef(null);
+  const mapRef = useRef(null);
   
   const [myPosition, setMyPosition] = useState({
     latitude: 37.24791218146621,
     longitude: 127.07672291805355
   });
 
+  const enableLayerGroup = (group) => {
+    if (mapRef.current) {
+      mapRef.current.setLayerGroupEnabled(group, true);
+    }
+  };
+
   // 고정된 포트홀 위치
   const potholePosition = { latitude: 37.24791218146621, longitude: 127.07872291805355 };
   const start = { latitude: 37.24791218146621, longitude: 127.07672291805355 };
   const end = { latitude: 37.2491948394616, longitude: 127.08214523069911};
+
+  useEffect(() => {
+    enableLayerGroup(LayerGroup.LAYER_GROUP_TRAFFIC);
+  }, []);
 
   useEffect(() => {
     moveIntervalRef.current = setInterval(() => 
@@ -60,6 +71,7 @@ function Map() {
   return (
     <View style={styles.container}>
       <NaverMapView
+        ref={mapRef}
         style={styles.map}
         zoomControl={false}
         scrollGesturesEnabled={false}
