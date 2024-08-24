@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Provider} from 'react-redux';
+import {TouchableOpacity} from 'react-native';
 import store from './src/store';
 import Map from './src/pages/Map';
 import VoiceNotice from './src/pages/VoiceNotice';
@@ -15,7 +16,7 @@ import PotholeReport from './src/pages/PotholeReport';
 import PotholeReportDetail from './src/pages/PotholeReportDetail';
 import PotholeReportList from './src/pages/PotholeReportList';
 import IconMenuBar from './src/assets/icon_menu_bar.svg';
-import {TouchableOpacity} from 'react-native';
+import IconHome from './src/assets/icon_home.svg';
 
 export type LoggedInParamList = {
   Map: undefined;
@@ -79,62 +80,58 @@ function App() {
             <LoggedInStack.Screen
               name="PotholeReport"
               component={PotholeReport}
-              options={{
+              options={({navigation}) => ({
                 title: '포트홀 신고',
                 headerStyle: {
                   backgroundColor: '#266DFC',
                 },
                 headerTintColor: '#fff',
-                headerRight: () => {
-                  const navigation = useNavigation();
-                  return (
-                    <TouchableOpacity
-                      onPress={() => navigation.navigate('PotholeReportList')}>
-                      <IconMenuBar width={30} height={30} />
-                    </TouchableOpacity>
-                  );
-                },
-              }}
+                headerRight: () => (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('PotholeReportList')}>
+                    <IconMenuBar width={30} height={30} />
+                  </TouchableOpacity>
+                ),
+              })}
             />
             <LoggedInStack.Screen
               name="PotholeReportDetail"
               component={PotholeReportDetail}
-              options={{
-                title: '포트홀 신고',
+              options={({navigation}) => ({
+                title: '포트홀 신고 Detail',
                 headerStyle: {
                   backgroundColor: '#266DFC',
                 },
                 headerTintColor: '#fff',
-                headerRight: () => {
-                  const navigation = useNavigation();
-                  return (
-                    <TouchableOpacity
-                      onPress={() => navigation.navigate('PotholeReportList')}>
-                      <IconMenuBar width={30} height={30} />
-                    </TouchableOpacity>
-                  );
-                },
-              }}
+                headerRight: () => (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('PotholeReportList')}>
+                    <IconMenuBar width={30} height={30} />
+                  </TouchableOpacity>
+                ),
+              })}
             />
             <LoggedInStack.Screen
               name="PotholeReportList"
               component={PotholeReportList}
-              options={{
+              options={({navigation}) => ({
                 title: '신고 목록',
                 headerStyle: {
                   backgroundColor: '#266DFC',
                 },
                 headerTintColor: '#fff',
-                headerRight: () => {
-                  const navigation = useNavigation();
-                  return (
-                    <TouchableOpacity
-                      onPress={() => navigation.navigate('PotholeReportList')}>
-                      <IconMenuBar width={30} height={30} />
-                    </TouchableOpacity>
-                  );
-                },
-              }}
+                headerLeft: () => (
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('Map')
+                    }></TouchableOpacity>
+                ),
+                headerRight: () => (
+                  <TouchableOpacity onPress={() => navigation.navigate('Map')}>
+                    <IconHome width={25} height={25} />
+                  </TouchableOpacity>
+                ),
+              })}
             />
           </LoggedInStack.Navigator>
         ) : (
