@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import LocationIcon from '../assets/icon_location.svg';
 import ImageIcon from '../assets/icon _image_gallery.svg';
+import CancelIcon from '../assets/icon_cancel_img.svg'; // 삭제 아이콘 추가
 import {launchImageLibrary} from 'react-native-image-picker';
 
 const PotholeReport = ({navigation}) => {
@@ -40,6 +41,11 @@ const PotholeReport = ({navigation}) => {
         setPhotos([...photos, selectedImage]); // 선택한 이미지를 상태에 추가
       }
     });
+  };
+
+  const handleDeletePhoto = index => {
+    const newPhotos = photos.filter((_, i) => i !== index);
+    setPhotos(newPhotos); // 이미지 삭제 후 상태 업데이트
   };
 
   return (
@@ -74,15 +80,18 @@ const PotholeReport = ({navigation}) => {
           />
         </View>
 
-        <View>
+        <View style={styles.photoSection}>
           <Text style={styles.label}>사진 첨부</Text>
           <View style={styles.photoRow}>
             {photos.map((photoUri, index) => (
-              <Image
-                key={index}
-                source={{uri: photoUri}}
-                style={styles.uploadedPhoto}
-              />
+              <View key={index} style={styles.photoContainer}>
+                <Image source={{uri: photoUri}} style={styles.uploadedPhoto} />
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => handleDeletePhoto(index)}>
+                  <CancelIcon width={18} height={18} />
+                </TouchableOpacity>
+              </View>
             ))}
             <TouchableOpacity
               style={styles.squarePhotoBox}
@@ -163,10 +172,23 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     marginTop: 25,
   },
+  photoSection: {
+    marginLeft: 10, // 신고 내용과 동일한 간격을 맞추기 위해 추가
+    marginRight: 10,
+    marginTop: 20, // 신고 내용과 사진 첨부 사이 간격을 맞추기 위해 추가
+  },
   photoRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'flex-start', // 사진들이 동일한 간격으로 배치되도록 조정
     marginBottom: 20,
+  },
+  photoContainer: {
+    position: 'relative',
+    width: 100, // 사진 크기에 맞춰 일정한 넓이 설정
+    height: 100, // 사진 크기에 맞춰 일정한 높이 설정
+    marginRight: 10,
+    marginBottom: 10,
   },
   squarePhotoBox: {
     width: 100,
@@ -177,17 +199,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     backgroundColor: '#f0f0f0',
-    marginLeft: 10,
-    marginRight: 10,
-    marginBottom: 15,
+    marginBottom: 10, // 추가된 박스가 기존 박스들과 동일한 간격을 유지하도록 설정
   },
   uploadedPhoto: {
-    width: 100,
-    height: 100,
+    width: '100%',
+    height: '100%',
     borderRadius: 10,
-    marginLeft: 10,
-    marginRight: 10,
-    marginBottom: 15,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    borderRadius: 10,
+    padding: 3,
+    zIndex: 1,
   },
   nextButton: {
     padding: 14,

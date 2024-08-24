@@ -9,7 +9,6 @@ import {
   Image,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import ImageIcon from '../assets/icon _image_gallery.svg';
 import {useDispatch} from 'react-redux';
 import {addReport} from '../slices/potholeSlice';
 
