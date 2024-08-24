@@ -1,7 +1,7 @@
 import React, { useRef,useState } from 'react';
 import { View, PanResponder, StyleSheet } from 'react-native';
 
-const CircleComponent = () => {
+const CircleComponent = ({onDrag}) => {
     const [position, setPosition] = useState({ x: 0, y: 0 });
   
     const panResponder = useRef(
@@ -16,7 +16,12 @@ const CircleComponent = () => {
           const snapY = Math.sin(snapAngle) * Math.sqrt(gestureState.dx ** 2 + gestureState.dy ** 2);
   
           setPosition({ x: snapX, y: snapY });
+          //Drag 콜백 전달 
+            // 드래그 방향과 스냅된 각도를 콘솔에 출력
+            console.log(`Dragging at angle: ${snapAngle}`);
+            onDrag(snapAngle);
         },
+        
         onPanResponderRelease: () => {
           // 드래그가 끝난 후 원의 위치를 초기화
           setPosition({ x: 0, y: 0 });

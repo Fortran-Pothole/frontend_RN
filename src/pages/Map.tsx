@@ -3,11 +3,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import IconSetting from '../assets/icon_system_line.svg';
 import { useNavigation } from '@react-navigation/native';
 import VoiceNotice from './VoiceNotice'; 
-import NaverMapView, { Marker, Path } from 'react-native-nmap';
+import NaverMapView, { Marker, Path, CameraPosition }from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
 import checkDistance from '../../types/checkDistance';
-import { movePosition, getDirection } from '../../types/locationUtils';
-import CircleComponent from '../assets/CircleComponent';
+import { movePosition, getDirection, moveTowardsEnd } from '../../types/locationUtils';
+import CircleComponent from '../components/CircleComponent';
+import PotholeInfo from '../components/PotholeInfo';
 
 function Map() {
   const navigation = useNavigation();
@@ -17,72 +18,26 @@ function Map() {
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
   const moveIntervalRef = useRef(null);
   
-  const [myPosition, setMyPosition] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-
-    // 드래그 감지
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderGrant: (evt, gestureState) => {
-        const direction = getDirection(gestureState.dx, gestureState.dy);
-        moveIntervalRef.current = setInterval(() => {
-          setMyPosition(prevPosition => movePosition(prevPosition, direction));
-        }, 100);
-      },
-      onPanResponderRelease: () => {
-        clearInterval(moveIntervalRef.current);
-      },
-    })
-  ).current;
+  const [myPosition, setMyPosition] = useState({
+    latitude: 37.24791218146621,
+    longitude: 127.07672291805355
+  });
 
   // 고정된 포트홀 위치
-  const potholePosition = { latitude: 37.245219498820546, longitude: 127.07290024649016 };
-  // 고정된 위도 및 경도 값
-  const start = { latitude: 41.405, longitude: 2.17311 };
+  const potholePosition = { latitude: 37.24791218146621, longitude: 127.07872291805355 };
+  const start = { latitude: 37.24791218146621, longitude: 127.07672291805355 };
+  const end = { latitude: 37.2491948394616, longitude: 127.08214523069911};
 
   useEffect(() => {
-    // 현재 위치 가져오기
-    Geolocation.getCurrentPosition(
-      position => {
-        const { latitude, longitude } = position.coords;
-        setMyPosition({ latitude, longitude });
-
-        const distance = checkDistance({ latitude, longitude }, potholePosition);
-        if (distance <= 500) {
-          setShowPotholeInfo(true);
-        } else {
-          setShowPotholeInfo(false);
-        }
-      },
-      error => console.log(error),
-      { enableHighAccuracy: false, timeout: 30000, maximumAge: 10000 }
+    moveIntervalRef.current = setInterval(() => 
+      moveTowardsEnd(myPosition, setMyPosition, start, end, potholePosition, setShowPotholeInfo, moveIntervalRef), 
+      2000
     );
-
-    // 위치 변경 감지
-    const watchId = Geolocation.watchPosition(
-      position => {
-        const { latitude, longitude } = position.coords;
-        setMyPosition({ latitude, longitude });
-
-        const distance = checkDistance({ latitude, longitude }, potholePosition);
-        if (distance <= 1000) {
-          setShowPotholeInfo(true);
-        } else {
-          setShowPotholeInfo(false);
-        }
-      },
-      error => console.log(error),
-      { enableHighAccuracy: true, distanceFilter: 10 }
-    );
-
     return () => {
-      // 컴포넌트 언마운트 시 위치 감지를 중지
-      Geolocation.clearWatch(watchId);
-    };
-  }, []);
+      clearInterval(moveIntervalRef.current);
+    }
+  }, [myPosition]);
+
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -107,53 +62,24 @@ function Map() {
       <NaverMapView
         style={styles.map}
         zoomControl={false}
+        scrollGesturesEnabled={false}
+        zoomGesturesEnabled={false}
+        tiltGesturesEnabled={false}
+        rotateGesturesEnabled={false}
+        stopGesturesEnabled={false}
         center={{
-          zoom: 17,
-          tilt: 50,
+          zoom: 16,
+          tilt: 100,
+          bearing: 90,
           latitude: myPosition?.latitude || start.latitude,
           longitude: myPosition?.longitude || start.longitude,
         }}>
-        <Marker
-          coordinate={{
-            latitude: potholePosition.latitude,
-            longitude: potholePosition.longitude,
-          }}
-          width={35}
-          height={35}
-          anchor={{x: 0.5, y:0.5}}
-          caption={{text: '포트홀'}}
-          image={require('../assets/pothole.png')}
-        />
-        <Marker
-          coordinate={{ 
-            latitude: myPosition?.latitude || start.latitude,
-            longitude: myPosition?.longitude || start.longitude,
-          }}
-          width={40}
-          height={40}
-          anchor={{x: 0.5, y:0.5}}
-          caption={{text: '나의 위치'}}
-          image={require('../assets/icon_current_location.png')}
-        />
+        <Marker coordinate={potholePosition} width={35} height={35} caption={{ text: '포트홀' }} image={require('../assets/pothole.png')} />
+        <Path coordinates={[start, end]} />
+        <Marker coordinate={myPosition} width={40} height={40} caption={{ text: '나의 위치' }} image={require('../assets/icon_current_location.png')} />
       </NaverMapView>
 
-      {showPotholeInfo && (
-        <View style={styles.potholeInfoContainer}>
-          <Text style={styles.potholeInfoHeader}>포트홀 정보</Text>
-          <Text style={styles.potholeInfoText}>전방 {Math.round(checkDistance(myPosition, potholePosition))}m</Text>
-          <Text style={styles.potholeInfoText}>포트홀 위험도: 주의</Text>
-          <Text style={styles.potholeInfoText}>신고 수: 2</Text>
-          <Text style={styles.potholeInfoText}>위도: {potholePosition.latitude.toFixed(5)}</Text>
-          <Text style={styles.potholeInfoText}>경도: {potholePosition.longitude.toFixed(5)}</Text>
-
-          <View style={styles.imageContainer}>
-            <Image
-              source={require('../assets/blue-dot.png')}
-              style={styles.potholeImage}
-            />
-          </View>
-        </View>
-      )}
+      {showPotholeInfo && <PotholeInfo position={potholePosition} myPosition={myPosition} />}
 
       <CircleComponent/>
 
