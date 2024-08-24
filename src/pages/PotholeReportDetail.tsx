@@ -6,30 +6,48 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native'; // 네비게이션 훅 사용
+import {useNavigation, useRoute} from '@react-navigation/native';
 import ImageIcon from '../assets/icon _image_gallery.svg';
-import {useDispatch} from 'react-redux'; // Redux 디스패치 사용
-import {addReport} from '../slices/potholeSlice'; // 신고 추가 액션 import
+import {useDispatch} from 'react-redux';
+import {addReport} from '../slices/potholeSlice';
 
 const PotholeReportDetail = () => {
-  const [location, setLocation] = useState('');
-  const [description, setDescription] = useState('');
+  const route = useRoute();
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  const [location, setLocation] = useState(route.params?.location || '');
+  const [description, setDescription] = useState(
+    route.params?.description || '',
+  );
   const [institution, setInstitution] = useState('');
   const [contact, setContact] = useState('');
   const [reportDate, setReportDate] = useState('');
-
-  const navigation = useNavigation(); // 네비게이션 훅
-  const dispatch = useDispatch(); // Redux 디스패치 훅
+  const [phoneNumberError, setPhoneNumberError] = useState('');
 
   const isSubmitButtonEnabled =
     location.trim().length > 0 &&
     description.trim().length > 0 &&
     institution.trim().length > 0 &&
-    contact.trim().length > 0 &&
+    contact.trim().length === 11 && // 연락처가 정확히 11자리여야 함
     reportDate.trim().length > 0;
 
+  const handleContactChange = text => {
+    const cleanedText = text.replace(/[^0-9]/g, ''); // 숫자만 허용
+    setContact(cleanedText);
+    if (cleanedText.length !== 11) {
+      setPhoneNumberError('전화번호를 정확히 입력해 주세요.');
+    } else {
+      setPhoneNumberError('');
+    }
+  };
+
   const handleSubmit = () => {
-    // 신고 데이터를 Redux에 추가
+    if (contact.length !== 11) {
+      setPhoneNumberError('전화번호를 정확히 입력해 주세요.');
+      return;
+    }
+
     const newReport = {
       id: Date.now(),
       location,
@@ -40,7 +58,6 @@ const PotholeReportDetail = () => {
     };
 
     dispatch(addReport(newReport));
-
     navigation.navigate('PotholeReportList');
   };
 
@@ -70,11 +87,15 @@ const PotholeReportDetail = () => {
 
       <Text style={styles.label}>연락처</Text>
       <TextInput
-        style={styles.textInput}
+        style={[styles.textInput, phoneNumberError ? styles.errorInput : null]}
         value={contact}
-        onChangeText={setContact}
-        keyboardType="phone-pad"
+        onChangeText={handleContactChange}
+        keyboardType="numeric"
+        maxLength={11} // 최대 11자리로 제한
       />
+      {phoneNumberError ? (
+        <Text style={styles.errorText}>{phoneNumberError}</Text>
+      ) : null}
 
       <Text style={styles.label}>신고 일자</Text>
       <TextInput
@@ -154,6 +175,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#F0F0F0',
     marginRight: 10,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 15,
+    marginLeft: 5,
+  },
+  errorInput: {
+    borderColor: 'red',
   },
   submitButton: {
     padding: 15,
