@@ -33,7 +33,7 @@ function Map() {
   };
 
   // 고정된 포트홀 위치
-  const potholePosition = { latitude: 37.34518559022692, longitude: 127.1036930268635 };
+  const potholePosition = { latitude: 37.33702247559959, longitude: 127.10344483011944 };
   const start = { latitude: 37.31207444155034, longitude: 127.10358835825805 };
   const end = { latitude:  37.34518559022692, longitude: 127.1036930268635};
 
@@ -52,12 +52,23 @@ function Map() {
     }
   }, [myPosition]);
 
+
   useEffect(() => {
-    Tts.addEventListener('tts-start', event => console.log('TTS 시작:', event));
-    Tts.addEventListener('tts-finish', event => console.log('TTS 종료:', event));
-    Tts.addEventListener('tts-cancel', event => console.log('TTS 취소:', event));
-    Tts.addEventListener('tts-error', event => console.log('TTS 오류:', event));
-  
+    Tts.getInitStatus()
+      .then(() => {
+        console.log('TTS 초기화 성공');
+        Tts.setDefaultLanguage('ko-KR');
+        Tts.setDefaultRate(0.3); 
+      })
+      .catch((error) => {
+        console.error('TTS 초기화 실패 또는 언어 설정 오류:', error);
+      });
+
+    Tts.addEventListener('tts-start', (event) => console.log('TTS 시작:', event));
+    Tts.addEventListener('tts-finish', (event) => console.log('TTS 완료:', event));
+    Tts.addEventListener('tts-cancel', (event) => console.log('TTS 취소:', event));
+    Tts.addEventListener('tts-error', (event) => console.log('TTS 오류:', event));
+
     return () => {
       Tts.removeAllListeners();
     };
@@ -65,20 +76,20 @@ function Map() {
 
   useEffect(() => {
     if (showPotholeInfo) {
-      Tts.stop();
-      Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다.`);
+      Tts.stop(); // 이전 TTS 중지
+      Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다. 속도를 줄여주세요`);
       
       ttsIntervalRef.current = setInterval(() => {
-        Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다.`);
-      }, 3000);
+        Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다. 속도를 줄여주세요`);
+      }, 9000);
     } else {
-      clearInterval(ttsIntervalRef.current); // Stop TTS when pothole info is hidden
+      clearInterval(ttsIntervalRef.current); 
     }
 
     return () => {
       clearInterval(ttsIntervalRef.current);
-    }
-  }, [showPotholeInfo]);
+    };
+  }, [showPotholeInfo, myPosition, potholePosition]);
 
 
   React.useLayoutEffect(() => {
