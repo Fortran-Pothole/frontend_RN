@@ -3,10 +3,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import IconSetting from '../assets/icon_system_line.svg';
 import { useNavigation } from '@react-navigation/native';
 import VoiceNotice from './VoiceNotice'; 
-import NaverMapView, { Marker, Path } from 'react-native-nmap';
+import NaverMapView, { Marker, Path, LayerGroup }from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
 import checkDistance from '../../types/checkDistance';
-import { movePosition, getDirection } from '../../types/locationUtils';
+import Tts from 'react-native-tts';
+import { movePosition, getDirection, moveTowardsEnd } from '../../types/locationUtils';
+import CircleComponent from '../components/CircleComponent';
+import PotholeInfo from '../components/PotholeInfo';
 
 function Map() {
   const navigation = useNavigation();
@@ -15,73 +18,68 @@ function Map() {
   const closeVoiceNotice = () => { setIsModalVisible(false);};
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
   const moveIntervalRef = useRef(null);
+  const mapRef = useRef(null);
+  const ttsIntervalRef = useRef(null); 
   
-  const [myPosition, setMyPosition] = useState<{
-    latitude: number;
-    longitude: Number;
-  } | null>(null);
+  const [myPosition, setMyPosition] = useState({
+    latitude: 37.322119339148045,
+    longitude: 127.10352593988907
+  });
 
-    // 드래그 감지
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderGrant: (evt, gestureState) => {
-        const direction = getDirection(gestureState.dx, gestureState.dy);
-        moveIntervalRef.current = setInterval(() => {
-          setMyPosition(prevPosition => movePosition(prevPosition, direction));
-        }, 100);
-      },
-      onPanResponderRelease: () => {
-        clearInterval(moveIntervalRef.current);
-      },
-    })
-  ).current;
+  const enableLayerGroup = (group) => {
+    if (mapRef.current) {
+      mapRef.current.setLayerGroupEnabled(group, true);
+    }
+  };
 
   // 고정된 포트홀 위치
-  const potholePosition = { latitude: 37.6538695717525, longitude: 127.01634111399655 };
-  // 고정된 위도 및 경도 값
-  const start = { latitude: 41.405, longitude: 2.17311 };
+  const potholePosition = { latitude: 37.34518559022692, longitude: 127.1036930268635 };
+  const start = { latitude: 37.31207444155034, longitude: 127.10358835825805 };
+  const end = { latitude:  37.34518559022692, longitude: 127.1036930268635};
 
   useEffect(() => {
-    // 현재 위치 가져오기
-    Geolocation.getCurrentPosition(
-      position => {
-        const { latitude, longitude } = position.coords;
-        setMyPosition({ latitude, longitude });
+    enableLayerGroup(LayerGroup.LAYER_GROUP_TRAFFIC);
+  }, []);
 
-        const distance = checkDistance({ latitude, longitude }, potholePosition);
-        if (distance <= 500) {
-          setShowPotholeInfo(true);
-        } else {
-          setShowPotholeInfo(false);
-        }
-      },
-      error => console.log(error),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+  useEffect(() => {
+    moveIntervalRef.current = setInterval(() => 
+      moveTowardsEnd(myPosition, setMyPosition, start, end, potholePosition, setShowPotholeInfo, moveIntervalRef), 
+      2000
     );
-
-    // 위치 변경 감지
-    const watchId = Geolocation.watchPosition(
-      position => {
-        const { latitude, longitude } = position.coords;
-        setMyPosition({ latitude, longitude });
-
-        const distance = checkDistance({ latitude, longitude }, potholePosition);
-        if (distance <= 1000) {
-          setShowPotholeInfo(true);
-        } else {
-          setShowPotholeInfo(false);
-        }
-      },
-      error => console.log(error),
-      { enableHighAccuracy: true, distanceFilter: 10 }
-    );
-
     return () => {
-      // 컴포넌트 언마운트 시 위치 감지를 중지
-      Geolocation.clearWatch(watchId);
+      clearInterval(moveIntervalRef.current);
+      clearInterval(ttsIntervalRef.current);
+    }
+  }, [myPosition]);
+
+  useEffect(() => {
+    Tts.addEventListener('tts-start', event => console.log('TTS 시작:', event));
+    Tts.addEventListener('tts-finish', event => console.log('TTS 종료:', event));
+    Tts.addEventListener('tts-cancel', event => console.log('TTS 취소:', event));
+    Tts.addEventListener('tts-error', event => console.log('TTS 오류:', event));
+  
+    return () => {
+      Tts.removeAllListeners();
     };
   }, []);
+
+  useEffect(() => {
+    if (showPotholeInfo) {
+      Tts.stop();
+      Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다.`);
+      
+      ttsIntervalRef.current = setInterval(() => {
+        Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다.`);
+      }, 3000);
+    } else {
+      clearInterval(ttsIntervalRef.current); // Stop TTS when pothole info is hidden
+    }
+
+    return () => {
+      clearInterval(ttsIntervalRef.current);
+    }
+  }, [showPotholeInfo]);
+
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -104,55 +102,36 @@ function Map() {
   return (
     <View style={styles.container}>
       <NaverMapView
+        ref={mapRef}
         style={styles.map}
         zoomControl={false}
+        scrollGesturesEnabled={false}
+        zoomGesturesEnabled={true}
+        tiltGesturesEnabled={false}
+        rotateGesturesEnabled={false}
+        stopGesturesEnabled={false}
         center={{
-          zoom: 17,
-          tilt: 50,
+          zoom: 16,
+          tilt: 100,
+          bearing: 0,
           latitude: myPosition?.latitude || start.latitude,
           longitude: myPosition?.longitude || start.longitude,
         }}>
-        <Marker
-          coordinate={{
-            latitude: potholePosition.latitude,
-            longitude: potholePosition.longitude,
-          }}
-          width={35}
-          height={35}
-          anchor={{x: 0.5, y:0.5}}
-          caption={{text: '포트홀'}}
-          image={require('../assets/pothole.png')}
+        <Marker coordinate={potholePosition} width={35} height={35} caption={{ text: '포트홀' }} image={require('../assets/pothole.png')} />
+        <Path 
+          coordinates={[start, end]}
+          width={3}
+          color='#266DFC'
+          outlineColor='#266DFC'
+          passedColor='#FE6F7B'
+          outlineWidth = {3}
         />
-        <Marker
-          coordinate={{ 
-            latitude: myPosition?.latitude || start.latitude,
-            longitude: myPosition?.longitude || start.longitude,
-          }}
-          width={40}
-          height={40}
-          anchor={{x: 0.5, y:0.5}}
-          caption={{text: '나의 위치'}}
-          image={require('../assets/icon_current_location.png')}
-        />
+        <Marker coordinate={myPosition} width={40} height={40} caption={{ text: '나의 위치' }} image={require('../assets/icon_current_location.png')} />
       </NaverMapView>
 
-      {showPotholeInfo && (
-        <View style={styles.potholeInfoContainer}>
-          <Text style={styles.potholeInfoHeader}>포트홀 정보</Text>
-          <Text style={styles.potholeInfoText}>전방 300m</Text>
-          <Text style={styles.potholeInfoText}>포트홀 위험도: 주의</Text>
-          <Text style={styles.potholeInfoText}>신고 수: 2</Text>
-          <Text style={styles.potholeInfoText}>위도: {potholePosition.latitude.toFixed(5)}</Text>
-          <Text style={styles.potholeInfoText}>경도: {potholePosition.longitude.toFixed(5)}</Text>
+      {showPotholeInfo && <PotholeInfo position={potholePosition} myPosition={myPosition} />}
 
-          <View style={styles.imageContainer}>
-            <Image
-              source={require('../assets/blue-dot.png')}
-              style={styles.potholeImage}
-            />
-          </View>
-        </View>
-)}
+      <CircleComponent/>
 
       <TouchableOpacity
         style={styles.micButton}
@@ -246,10 +225,15 @@ const styles = StyleSheet.create({
   },
   controlContainer: {
     position: 'absolute',
-    bottom: 20,
-    left: 20,
-    width: 100,
-    height: 100,
+    bottom: 50,  
+    left: 20,   
+    width: 50,   
+    height: 50,  
+    borderRadius: 25, 
+    backgroundColor: '#003366',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
   },
   controlImage: {
     width: '100%',
