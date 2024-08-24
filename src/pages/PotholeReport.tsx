@@ -10,9 +10,11 @@ import LocationIcon from '../assets/icon_location.svg';
 import ImageIcon from '../assets/icon _image_gallery.svg';
 
 const PotholeReport = ({navigation}) => {
-  // navigation prop 추가
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
+
+  const isNextButtonEnabled =
+    location.trim().length > 0 && description.trim().length > 0;
 
   return (
     <View style={styles.container}>
@@ -54,9 +56,12 @@ const PotholeReport = ({navigation}) => {
       </View>
 
       <TouchableOpacity
-        style={styles.nextButton}
-        onPress={() => navigation.navigate('PotholeReportDetail')} // PotholeReportDetail로 이동
-      >
+        style={[
+          styles.nextButton,
+          {backgroundColor: isNextButtonEnabled ? '#266DFC' : '#727783'},
+        ]}
+        onPress={() => navigation.navigate('PotholeReportDetail')}
+        disabled={!isNextButtonEnabled}>
         <Text style={styles.nextButtonText}>다음</Text>
       </TouchableOpacity>
     </View>
@@ -140,7 +145,6 @@ const styles = StyleSheet.create({
     width: 300,
     alignItems: 'center',
     alignSelf: 'center',
-    backgroundColor: '#266DFC',
   },
   nextButtonText: {
     fontSize: 18,

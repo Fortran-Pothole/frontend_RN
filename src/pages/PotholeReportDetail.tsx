@@ -21,6 +21,13 @@ const PotholeReportDetail = () => {
   const navigation = useNavigation(); // 네비게이션 훅
   const dispatch = useDispatch(); // Redux 디스패치 훅
 
+  const isSubmitButtonEnabled =
+    location.trim().length > 0 &&
+    description.trim().length > 0 &&
+    institution.trim().length > 0 &&
+    contact.trim().length > 0 &&
+    reportDate.trim().length > 0;
+
   const handleSubmit = () => {
     // 신고 데이터를 Redux에 추가
     const newReport = {
@@ -86,7 +93,13 @@ const PotholeReportDetail = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+      <TouchableOpacity
+        style={[
+          styles.submitButton,
+          {backgroundColor: isSubmitButtonEnabled ? '#153C8B' : '#727783'},
+        ]}
+        onPress={handleSubmit}
+        disabled={!isSubmitButtonEnabled}>
         <Text style={styles.submitButtonText}>신고</Text>
       </TouchableOpacity>
     </View>
@@ -146,7 +159,6 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 25,
     marginTop: 20,
-    backgroundColor: '#153C8B',
     alignItems: 'center',
     alignSelf: 'center',
     width: 300,
