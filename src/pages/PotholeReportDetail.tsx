@@ -6,7 +6,10 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import {useNavigation} from '@react-navigation/native'; // 네비게이션 훅 사용
 import ImageIcon from '../assets/icon _image_gallery.svg';
+import {useDispatch} from 'react-redux'; // Redux 디스패치 사용
+import {addReport} from '../slices/potholeSlice'; // 신고 추가 액션 import
 
 const PotholeReportDetail = () => {
   const [location, setLocation] = useState('');
@@ -14,6 +17,25 @@ const PotholeReportDetail = () => {
   const [institution, setInstitution] = useState('');
   const [contact, setContact] = useState('');
   const [reportDate, setReportDate] = useState('');
+
+  const navigation = useNavigation(); // 네비게이션 훅
+  const dispatch = useDispatch(); // Redux 디스패치 훅
+
+  const handleSubmit = () => {
+    // 신고 데이터를 Redux에 추가
+    const newReport = {
+      id: Date.now(),
+      location,
+      description,
+      institution,
+      contact,
+      reportDate,
+    };
+
+    dispatch(addReport(newReport));
+
+    navigation.navigate('PotholeReportList');
+  };
 
   return (
     <View style={styles.container}>
@@ -64,7 +86,7 @@ const PotholeReportDetail = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.submitButton}>
+      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>신고</Text>
       </TouchableOpacity>
     </View>
