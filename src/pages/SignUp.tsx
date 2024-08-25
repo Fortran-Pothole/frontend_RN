@@ -23,7 +23,6 @@ function SignUp({setLoggedIn}) {
 
   const isUsernameValid = username.trim().length > 0;
 
-  // Updated regex: password should be at least 8 characters long, include letters and numbers
   const isPasswordValid = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(
     password,
   );
@@ -56,7 +55,6 @@ function SignUp({setLoggedIn}) {
   const handlePasswordChange = text => {
     setPassword(text);
 
-    // Updated regex to include letters and numbers only
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRegex.test(text)) {
       setPasswordError('영문자와 숫자를 포함한 8자리 이상이어야 합니다.');
@@ -113,7 +111,7 @@ function SignUp({setLoggedIn}) {
       <View style={styles.inputWrapper}>
         <View style={styles.inputRow}>
           <TextInput
-            style={styles.input}
+            style={styles.usernameInput}
             placeholder="아이디"
             value={username}
             onChangeText={handleUsernameChange}
@@ -142,7 +140,7 @@ function SignUp({setLoggedIn}) {
       <View style={styles.inputWrapper}>
         <View style={styles.inputRow}>
           <TextInput
-            style={styles.input}
+            style={styles.passwordInput}
             placeholder="비밀번호"
             value={password}
             secureTextEntry
@@ -193,8 +191,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  input: {
+  usernameInput: {
     flex: 0.8,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 25,
+    padding: 12,
+    marginLeft: 20,
+    marginRight: 15,
+  },
+  passwordInput: {
+    flex: 0.7,
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 25,
@@ -207,6 +214,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 25,
     alignItems: 'center',
+    marginLeft: 20,
     justifyContent: 'center',
   },
   buttonText: {
