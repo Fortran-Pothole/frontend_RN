@@ -1,13 +1,27 @@
-import { Text, View, TouchableOpacity, StyleSheet, Image, Modal, Button, Dimensions, PanResponder} from 'react-native';
-import React, { useState, useEffect, useRef } from 'react';
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Modal,
+  Button,
+  Dimensions,
+  PanResponder,
+} from 'react-native';
+import React, {useState, useEffect, useRef} from 'react';
 import IconSetting from '../assets/icon_system_line.svg';
-import { useNavigation } from '@react-navigation/native';
-import VoiceNotice from './VoiceNotice'; 
-import NaverMapView, { Marker, Path, LayerGroup }from 'react-native-nmap';
+import {useNavigation} from '@react-navigation/native';
+import VoiceNotice from './VoiceNotice';
+import NaverMapView, {Marker, Path, LayerGroup} from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
 import checkDistance from '../../types/checkDistance';
 import Tts from 'react-native-tts';
-import { movePosition, getDirection, moveTowardsEnd } from '../../types/locationUtils';
+import {
+  movePosition,
+  getDirection,
+  moveTowardsEnd,
+} from '../../types/locationUtils';
 import CircleComponent from '../components/CircleComponent';
 import PotholeInfo from '../components/PotholeInfo';
 import markerData from '../components/marker.json';
@@ -15,8 +29,12 @@ import markerData from '../components/marker.json';
 function Map() {
   const navigation = useNavigation();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const openVoiceNotice = () => { setIsModalVisible(true);};
-  const closeVoiceNotice = () => { setIsModalVisible(false);};
+  const openVoiceNotice = () => {
+    setIsModalVisible(true);
+  };
+  const closeVoiceNotice = () => {
+    setIsModalVisible(false);
+  };
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
   const moveIntervalRef = useRef(null);
   const mapRef = useRef(null);
@@ -25,10 +43,10 @@ function Map() {
   
   const [myPosition, setMyPosition] = useState({
     latitude: 37.322119339148045,
-    longitude: 127.10352593988907
+    longitude: 127.10352593988907,
   });
 
-  const enableLayerGroup = (group) => {
+  const enableLayerGroup = group => {
     if (mapRef.current) {
       mapRef.current.setLayerGroupEnabled(group, true);
     }
@@ -50,8 +68,9 @@ function Map() {
     return () => {
       clearInterval(moveIntervalRef.current);
       clearInterval(ttsIntervalRef.current);
-    }
+    };
   }, [myPosition]);
+
 
 
   useEffect(() => {
@@ -59,7 +78,7 @@ function Map() {
       .then(() => {
         console.log('TTS 초기화 성공');
         Tts.setDefaultLanguage('ko-KR');
-        Tts.setDefaultRate(0.3);
+        Tts.setDefaultRate(0.4);
       })
       .catch((error) => {
         console.error('TTS 초기화 실패 또는 언어 설정 오류:', error);
@@ -111,20 +130,25 @@ function Map() {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity onPress={() => console.log('수동 신고 pressed')}>
-            <Text style={{ color: '#000', fontSize: 16, marginRight: 20 }}>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('PotholeReport')}>
+            <Text style={{color: '#000', fontSize: 16, marginRight: 20}}>
               수동 신고
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
-            <IconSetting name="settings-outline" size={25} color="#000" style={{ marginRight: 15 }} />
+            <IconSetting
+              name="settings-outline"
+              size={25}
+              color="#000"
+              style={{marginRight: 15}}
+            />
           </TouchableOpacity>
         </View>
       ),
     });
   }, [navigation]);
-
 
   return (
     <View style={styles.container}>
@@ -144,25 +168,37 @@ function Map() {
           latitude: myPosition?.latitude || start.latitude,
           longitude: myPosition?.longitude || start.longitude,
         }}>
-        <Marker coordinate={potholePosition} width={35} height={35} caption={{ text: '포트홀' }} image={require('../assets/pothole.png')} />
-        <Path 
+        <Marker
+          coordinate={potholePosition}
+          width={35}
+          height={35}
+          caption={{text: '포트홀'}}
+          image={require('../assets/pothole.png')}
+        />
+        <Path
           coordinates={[start, end]}
           width={3}
-          color='#266DFC'
-          outlineColor='#266DFC'
-          passedColor='#FE6F7B'
-          outlineWidth = {3}
+          color="#266DFC"
+          outlineColor="#266DFC"
+          passedColor="#FE6F7B"
+          outlineWidth={3}
         />
-        <Marker coordinate={myPosition} width={40} height={40} caption={{ text: '나의 위치' }} image={require('../assets/icon_current_location.png')} />
+        <Marker
+          coordinate={myPosition}
+          width={40}
+          height={40}
+          caption={{text: '나의 위치'}}
+          image={require('../assets/icon_current_location.png')}
+        />
       </NaverMapView>
 
-      {showPotholeInfo && <PotholeInfo position={potholePosition} myPosition={myPosition} />}
+      {showPotholeInfo && (
+        <PotholeInfo position={potholePosition} myPosition={myPosition} />
+      )}
 
-      <CircleComponent/>
+      <CircleComponent />
 
-      <TouchableOpacity
-        style={styles.micButton}
-        onPress={openVoiceNotice}>
+      <TouchableOpacity style={styles.micButton} onPress={openVoiceNotice}>
         <Image
           source={require('../assets/microphone.png')}
           style={styles.micIcon}
@@ -183,7 +219,6 @@ function Map() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -195,7 +230,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 50,
     left: '50%',
-    transform: [{ translateX: -30 }],
+    transform: [{translateX: -30}],
     width: 50,
     height: 50,
     borderRadius: 30,
@@ -231,32 +266,32 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 15, 
+    marginBottom: 15,
   },
   potholeInfoText: {
     color: 'black',
     fontSize: 16,
-    marginBottom: 5, 
+    marginBottom: 5,
   },
   imageContainer: {
     marginTop: 15,
     width: '100%',
     height: 100,
     alignItems: 'center',
-    justifyContent: 'center', 
+    justifyContent: 'center',
   },
   potholeImage: {
-    width: '100%', 
+    width: '100%',
     height: '100%',
-    resizeMode: 'contain', 
+    resizeMode: 'contain',
   },
   controlContainer: {
     position: 'absolute',
-    bottom: 50,  
-    left: 20,   
-    width: 50,   
-    height: 50,  
-    borderRadius: 25, 
+    bottom: 50,
+    left: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#003366',
     justifyContent: 'center',
     alignItems: 'center',

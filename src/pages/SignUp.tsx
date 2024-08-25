@@ -1,39 +1,30 @@
-import React, {useState, useRef} from 'react';
+import React, {useState} from 'react';
 import {
-  Animated,
+  Alert,
   Text,
   TextInput,
   View,
   StyleSheet,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import LoginSVG from '../assets/login_fortran.svg';
 
-function SignUp({setLoggedIn}) {
-  const [nickname, setNickname] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [isVerified, setIsVerified] = useState(false);
-
-  const [nicknameVerified, setNicknameVerified] = useState(false);
-  const [phoneNumberVerified, setPhoneNumberVerified] = useState(false);
-  const [showVerificationField, setShowVerificationField] = useState(false);
-
-  const [nicknameError, setNicknameError] = useState('');
-  const [phoneNumberError, setPhoneNumberError] = useState('');
-  const [verificationCodeError, setVerificationCodeError] = useState('');
-
-  const slideAnim = useRef(new Animated.Value(0)).current;
+function SignUp() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [usernameVerified, setUsernameVerified] = useState(false);
+  const [usernameError, setUsernameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const navigation = useNavigation();
 
-  const canGoNext = nicknameVerified && phoneNumberVerified && isVerified;
+  const isUsernameValid = username.trim().length > 0;
+  const isPasswordValid = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(
+    password,
+  );
 
-  const isNicknameValid = nickname.trim().length > 0;
-  const isPhoneNumberValid = phoneNumber.length === 11;
-  const isVerificationCodeValid = verificationCode.trim().length > 0;
+  const canGoNext = usernameVerified && isPasswordValid;
 
   const handleTextChange = (
     text,
@@ -50,90 +41,57 @@ function SignUp({setLoggedIn}) {
     }
   };
 
-  const handleNicknameChange = text => {
-    setNicknameVerified(false);
+  const handleUsernameChange = text => {
+    setUsernameVerified(false);
     handleTextChange(
       text,
-      setNickname,
-      setNicknameError,
-      '닉네임을 정확히 입력해 주세요.',
+      setUsername,
+      setUsernameError,
+      '아이디를 정확히 입력해 주세요.',
     );
   };
 
-  const handlePhoneNumberChange = text => {
-    setPhoneNumberVerified(false);
-    const numericText = text.replace(/[^0-9]/g, '');
-    if (numericText !== text) {
-      setPhoneNumberError('전화번호를 정확히 입력해 주세요.');
+  const handlePasswordChange = text => {
+    setPassword(text);
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(text)) {
+      setPasswordError('영문자와 숫자를 포함한 8자리 이상이어야 합니다.');
     } else {
-      setPhoneNumberError('');
-      handleTextChange(
-        numericText,
-        setPhoneNumber,
-        setPhoneNumberError,
-        '전화번호를 정확히 입력해 주세요.',
-      );
+      setPasswordError('사용 가능한 비밀번호입니다.');
     }
   };
 
-  const handleVerificationCodeChange = text => {
-    const numericText = text.replace(/[^0-9]/g, '');
-    if (numericText !== text) {
-      setVerificationCodeError('인증번호를 정확히 입력해 주세요.');
-    } else {
-      setVerificationCodeError('');
-      handleTextChange(
-        numericText,
-        setVerificationCode,
-        setVerificationCodeError,
-        '인증번호를 정확히 입력해 주세요.',
-      );
-    }
-  };
-
-  const handleNicknameCheck = async () => {
-    if (!nickname) {
-      setNicknameError('닉네임을 입력해 주세요.');
+  const handleUsernameCheck = async () => {
+    if (!username) {
+      setUsernameError('아이디를 입력해 주세요.');
       return;
     }
 
-    const existingNicknames = [
-      'existingUser1',
-      'existingUser2',
-      'existingUser3',
-    ];
+    try {
+      const existingUsernames = [
+        'existingUser1',
+        'existingUser2',
+        'existingUser3',
+      ];
 
-    if (existingNicknames.includes(nickname)) {
-      setNicknameError('이미 다른 사용자가 사용 중 입니다.');
-      setNicknameVerified(false);
-    } else {
-      setNicknameError('사용 가능한 닉네임입니다.');
-      setNicknameVerified(true);
+      if (existingUsernames.includes(username)) {
+        setUsernameError('이미 다른 사용자가 사용 중 입니다.');
+        setUsernameVerified(false);
+      } else {
+        setUsernameError('사용 가능한 아이디입니다.');
+        setUsernameVerified(true);
+      }
+    } catch (error) {
+      console.error('Username check failed', error);
+      setUsernameError('아이디 확인 중 오류가 발생했습니다.');
     }
-  };
-
-  const handlePhoneNumberVerification = () => {
-    setPhoneNumberVerified(true);
-    setShowVerificationField(true); // 인증 필드 보이기
-    Animated.timing(slideAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start(); // 슬라이드 애니메이션
-  };
-
-  const handleVerificationCodeCheck = () => {
-    setIsVerified(true); // 임시로 인증 완료로 설정
   };
 
   const handleSignUp = () => {
     if (canGoNext) {
       Alert.alert('알림', '회원가입이 완료되었습니다!');
-      setLoggedIn(true);
-
-      setTimeout(() => {
-        navigation.navigate('Map');
-      }, 100); // 100ms 지연
+      navigation.navigate('SignIn'); // SignIn 화면으로 이동
     } else {
       Alert.alert('알림', '모든 확인 절차를 완료해 주세요.');
     }
@@ -148,28 +106,28 @@ function SignUp({setLoggedIn}) {
       <View style={styles.inputWrapper}>
         <View style={styles.inputRow}>
           <TextInput
-            style={styles.input}
-            placeholder="닉네임"
-            value={nickname}
-            onChangeText={handleNicknameChange}
+            style={styles.usernameInput}
+            placeholder="아이디"
+            value={username}
+            onChangeText={handleUsernameChange}
           />
           <TouchableOpacity
             style={[
               styles.button,
-              {backgroundColor: isNicknameValid ? '#003366' : '#727783'},
+              {backgroundColor: isUsernameValid ? '#003366' : '#727783'},
             ]}
-            onPress={handleNicknameCheck}
-            disabled={!isNicknameValid}>
+            onPress={handleUsernameCheck}
+            disabled={!isUsernameValid}>
             <Text style={styles.buttonText}>확인</Text>
           </TouchableOpacity>
         </View>
-        {nicknameError ? (
+        {usernameError ? (
           <Text
             style={[
               styles.errorText,
-              nicknameError === '사용 가능한 닉네임입니다.' && {color: 'green'},
+              usernameError === '사용 가능한 아이디입니다.' && {color: 'green'},
             ]}>
-            {nicknameError}
+            {usernameError}
           </Text>
         ) : null}
       </View>
@@ -177,75 +135,25 @@ function SignUp({setLoggedIn}) {
       <View style={styles.inputWrapper}>
         <View style={styles.inputRow}>
           <TextInput
-            style={styles.input}
-            placeholder="전화번호"
-            value={phoneNumber}
-            keyboardType="phone-pad"
-            onChangeText={handlePhoneNumberChange}
+            style={styles.passwordInput}
+            placeholder="비밀번호"
+            value={password}
+            secureTextEntry
+            onChangeText={handlePasswordChange}
           />
-          <TouchableOpacity
-            style={[
-              styles.button,
-              {backgroundColor: isPhoneNumberValid ? '#003366' : '#727783'},
-            ]}
-            onPress={handlePhoneNumberVerification}
-            disabled={!isPhoneNumberValid}>
-            <Text style={styles.buttonText}>인증</Text>
-          </TouchableOpacity>
         </View>
-        {phoneNumberError ? (
-          <Text style={styles.errorText}>{phoneNumberError}</Text>
+        {passwordError ? (
+          <Text
+            style={[
+              styles.errorText,
+              passwordError === '사용 가능한 비밀번호입니다.' && {
+                color: 'green',
+              },
+            ]}>
+            {passwordError}
+          </Text>
         ) : null}
       </View>
-
-      {showVerificationField && (
-        <Animated.View
-          style={[
-            styles.inputWrapper,
-            {
-              transform: [
-                {
-                  translateY: slideAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-50, 0], // 위에서 아래로 슬라이드
-                  }),
-                },
-              ],
-            },
-          ]}>
-          <View style={styles.inputRow}>
-            <TextInput
-              style={styles.input}
-              placeholder="전화번호 인증"
-              value={verificationCode}
-              keyboardType="numeric"
-              onChangeText={handleVerificationCodeChange}
-              secureTextEntry
-              autoComplete="sms-otp"
-              importantForAutofill="yes"
-              textContentType="oneTimeCode"
-            />
-            <TouchableOpacity
-              style={[
-                styles.button,
-                {
-                  backgroundColor: isVerificationCodeValid
-                    ? '#003366'
-                    : '#727783',
-                },
-              ]}
-              onPress={handleVerificationCodeCheck}
-              disabled={!isVerificationCodeValid}>
-              <Text style={styles.buttonText}>확인</Text>
-            </TouchableOpacity>
-          </View>
-          {verificationCodeError || isVerified ? (
-            <Text style={[styles.errorText, isVerified && {color: 'green'}]}>
-              {isVerified ? '인증되었습니다!' : verificationCodeError}
-            </Text>
-          ) : null}
-        </Animated.View>
-      )}
 
       <TouchableOpacity
         style={[
@@ -278,8 +186,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  input: {
+  usernameInput: {
     flex: 0.8,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 25,
+    padding: 12,
+    marginLeft: 20,
+    marginRight: 15,
+  },
+  passwordInput: {
+    flex: 0.75,
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 25,
