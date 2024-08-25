@@ -2,7 +2,7 @@
     {
         "id": "1",
         "latitude": 37.32266762615309,
-        "longitude": 127.1050498065634,
+        "longitude": 127.10349143909238,
         "title": "Marker 1"
     },
     {
@@ -15,6 +15,18 @@
         "id": "3",
         "latitude": 37.33809466119677,
         "longitude": 127.10349143909238,
+        "title": "Marker 3"
+    },
+    {
+        "id": "4",
+        "latitude": 37.33492306649707,
+        "longitude": 127.10349143909238,
         "title": "Marker 2"
     },
+    {
+        "id": "5",
+        "latitude": 37.32426382411811,
+        "longitude": 127.10349143909238,
+        "title": "Marker 3"
+    }
 ]

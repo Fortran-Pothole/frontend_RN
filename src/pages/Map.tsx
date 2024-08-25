@@ -10,6 +10,7 @@ import Tts from 'react-native-tts';
 import { movePosition, getDirection, moveTowardsEnd } from '../../types/locationUtils';
 import CircleComponent from '../components/CircleComponent';
 import PotholeInfo from '../components/PotholeInfo';
+import markerData from '../components/marker.json';
 
 function Map() {
   const navigation = useNavigation();
@@ -20,6 +21,7 @@ function Map() {
   const moveIntervalRef = useRef(null);
   const mapRef = useRef(null);
   const ttsIntervalRef = useRef(null); 
+  const isSpeakingRef = useRef(false);
   
   const [myPosition, setMyPosition] = useState({
     latitude: 37.322119339148045,
@@ -33,7 +35,7 @@ function Map() {
   };
 
   // 고정된 포트홀 위치
-  const potholePosition = { latitude: 37.33702247559959, longitude: 127.10344483011944 };
+  const potholePosition = { latitude:  37.32426382411811, longitude: 127.10349143909238 };
   const start = { latitude: 37.31207444155034, longitude: 127.10358835825805 };
   const end = { latitude:  37.34518559022692, longitude: 127.1036930268635};
 
@@ -42,10 +44,9 @@ function Map() {
   }, []);
 
   useEffect(() => {
-    moveIntervalRef.current = setInterval(() => 
-      moveTowardsEnd(myPosition, setMyPosition, start, end, potholePosition, setShowPotholeInfo, moveIntervalRef), 
-      2000
-    );
+    moveIntervalRef.current = setInterval(() => {
+      moveTowardsEnd(myPosition, setMyPosition, start, end, potholePosition, setShowPotholeInfo, moveIntervalRef); 
+    }, 1000);
     return () => {
       clearInterval(moveIntervalRef.current);
       clearInterval(ttsIntervalRef.current);
@@ -58,16 +59,28 @@ function Map() {
       .then(() => {
         console.log('TTS 초기화 성공');
         Tts.setDefaultLanguage('ko-KR');
-        Tts.setDefaultRate(0.3); 
+        Tts.setDefaultRate(0.3);
       })
       .catch((error) => {
         console.error('TTS 초기화 실패 또는 언어 설정 오류:', error);
       });
 
-    Tts.addEventListener('tts-start', (event) => console.log('TTS 시작:', event));
-    Tts.addEventListener('tts-finish', (event) => console.log('TTS 완료:', event));
-    Tts.addEventListener('tts-cancel', (event) => console.log('TTS 취소:', event));
-    Tts.addEventListener('tts-error', (event) => console.log('TTS 오류:', event));
+    Tts.addEventListener('tts-start', () => {
+      console.log('TTS 시작');
+      isSpeakingRef.current = true;
+    });
+    Tts.addEventListener('tts-finish', () => {
+      console.log('TTS 완료');
+      isSpeakingRef.current = false;
+    });
+    Tts.addEventListener('tts-cancel', () => {
+      console.log('TTS 취소');
+      isSpeakingRef.current = false;
+    });
+    Tts.addEventListener('tts-error', () => {
+      console.log('TTS 오류');
+      isSpeakingRef.current = false;
+    });
 
     return () => {
       Tts.removeAllListeners();
@@ -76,14 +89,17 @@ function Map() {
 
   useEffect(() => {
     if (showPotholeInfo) {
-      Tts.stop(); // 이전 TTS 중지
-      Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다. 속도를 줄여주세요`);
-      
-      ttsIntervalRef.current = setInterval(() => {
+      if (!isSpeakingRef.current) {
         Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다. 속도를 줄여주세요`);
-      }, 9000);
+      }
+      ttsIntervalRef.current = setInterval(() => {
+        if (!isSpeakingRef.current && showPotholeInfo) {
+          Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다. 속도를 줄여주세요`);
+        }
+      }, 6000);
+      
     } else {
-      clearInterval(ttsIntervalRef.current); 
+      clearInterval(ttsIntervalRef.current);
     }
 
     return () => {
