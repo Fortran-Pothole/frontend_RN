@@ -13,19 +13,20 @@ import LoginSVG from '../assets/login_fortran.svg';
 function SignUp({setLoggedIn}) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isVerified, setIsVerified] = useState(false);
-
   const [usernameVerified, setUsernameVerified] = useState(false);
-
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
   const navigation = useNavigation();
 
-  const canGoNext = usernameVerified && password.trim().length > 0;
+  const canGoNext = usernameVerified && passwordError === '';
 
   const isUsernameValid = username.trim().length > 0;
-  const isPasswordValid = password.trim().length > 0;
+
+  // Updated regex: password should be at least 8 characters long, include letters and numbers
+  const isPasswordValid = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(
+    password,
+  );
 
   const handleTextChange = (
     text,
@@ -53,12 +54,15 @@ function SignUp({setLoggedIn}) {
   };
 
   const handlePasswordChange = text => {
-    handleTextChange(
-      text,
-      setPassword,
-      setPasswordError,
-      '비밀번호를 정확히 입력해 주세요.',
-    );
+    setPassword(text);
+
+    // Updated regex to include letters and numbers only
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(text)) {
+      setPasswordError('영문자와 숫자를 포함한 8자리 이상이어야 합니다.');
+    } else {
+      setPasswordError('사용 가능한 비밀번호입니다.');
+    }
   };
 
   const handleUsernameCheck = async () => {
@@ -146,7 +150,15 @@ function SignUp({setLoggedIn}) {
           />
         </View>
         {passwordError ? (
-          <Text style={styles.errorText}>{passwordError}</Text>
+          <Text
+            style={[
+              styles.errorText,
+              passwordError === '사용 가능한 비밀번호입니다.' && {
+                color: 'green',
+              },
+            ]}>
+            {passwordError}
+          </Text>
         ) : null}
       </View>
 
