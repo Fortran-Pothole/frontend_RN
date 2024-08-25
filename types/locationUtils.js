@@ -120,4 +120,5 @@ export const moveTowardsEnd = (myPosition, setMyPosition, start, end, potholePos
   } else {
     setMyPosition(newPosition);
   }
+  
 };
