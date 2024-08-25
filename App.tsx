@@ -144,7 +144,7 @@ function App() {
             <Stack.Screen
               name="SignUp"
               options={{title: '회원가입', headerShown: false}}>
-              {props => <SignUp {...props} setLoggedIn={setLoggedIn} />}
+              {props => <SignUp {...props} />}
             </Stack.Screen>
           </Stack.Navigator>
         )}

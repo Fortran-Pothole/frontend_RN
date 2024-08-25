@@ -10,7 +10,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import LoginSVG from '../assets/login_fortran.svg';
 
-function SignUp({setLoggedIn}) {
+function SignUp() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [usernameVerified, setUsernameVerified] = useState(false);
@@ -19,10 +19,7 @@ function SignUp({setLoggedIn}) {
 
   const navigation = useNavigation();
 
-  // Check if username is valid (i.e., non-empty)
   const isUsernameValid = username.trim().length > 0;
-
-  // Check if password is valid (i.e., at least 8 characters with letters and numbers)
   const isPasswordValid = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(
     password,
   );
@@ -94,11 +91,7 @@ function SignUp({setLoggedIn}) {
   const handleSignUp = () => {
     if (canGoNext) {
       Alert.alert('알림', '회원가입이 완료되었습니다!');
-      setLoggedIn(true);
-
-      setTimeout(() => {
-        navigation.navigate('SignIn'); // SignIn 화면으로 이동
-      }, 100); // 100ms 지연
+      navigation.navigate('SignIn'); // SignIn 화면으로 이동
     } else {
       Alert.alert('알림', '모든 확인 절차를 완료해 주세요.');
     }
