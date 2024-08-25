@@ -137,6 +137,11 @@ function App() {
         ) : (
           <Stack.Navigator>
             <Stack.Screen
+              name="SignIn"
+              component={SignIn}
+              options={{title: '로그인', headerShown: false}}
+            />
+            <Stack.Screen
               name="SignUp"
               options={{title: '회원가입', headerShown: false}}>
               {props => <SignUp {...props} setLoggedIn={setLoggedIn} />}

@@ -19,13 +19,15 @@ function SignUp({setLoggedIn}) {
 
   const navigation = useNavigation();
 
-  const canGoNext = usernameVerified && passwordError === '';
-
+  // Check if username is valid (i.e., non-empty)
   const isUsernameValid = username.trim().length > 0;
 
+  // Check if password is valid (i.e., at least 8 characters with letters and numbers)
   const isPasswordValid = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(
     password,
   );
+
+  const canGoNext = usernameVerified && isPasswordValid;
 
   const handleTextChange = (
     text,
@@ -95,7 +97,7 @@ function SignUp({setLoggedIn}) {
       setLoggedIn(true);
 
       setTimeout(() => {
-        navigation.navigate('Map');
+        navigation.navigate('SignIn'); // SignIn 화면으로 이동
       }, 100); // 100ms 지연
     } else {
       Alert.alert('알림', '모든 확인 절차를 완료해 주세요.');
@@ -201,7 +203,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   passwordInput: {
-    flex: 0.7,
+    flex: 0.75,
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 25,
@@ -214,7 +216,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 25,
     alignItems: 'center',
-    marginLeft: 20,
     justifyContent: 'center',
   },
   buttonText: {
