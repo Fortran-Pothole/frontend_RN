@@ -40,7 +40,7 @@ const LoggedInStack = createNativeStackNavigator<LoggedInParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
-  const [isLoggedIn, setLoggedIn] = useState(true);
+  const [isLoggedIn, setLoggedIn] = useState(false);
 
   return (
     <Provider store={store}>
@@ -137,9 +137,14 @@ function App() {
         ) : (
           <Stack.Navigator>
             <Stack.Screen
+              name="SignIn"
+              options={{title: '로그인', headerShown: false}}>
+              {props => <SignIn {...props} setLoggedIn={setLoggedIn} />}
+            </Stack.Screen>
+            <Stack.Screen
               name="SignUp"
               options={{title: '회원가입', headerShown: false}}>
-              {props => <SignUp {...props} setLoggedIn={setLoggedIn} />}
+              {props => <SignUp {...props} />}
             </Stack.Screen>
           </Stack.Navigator>
         )}
