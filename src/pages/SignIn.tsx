@@ -15,6 +15,8 @@ function SignIn({setLoggedIn}) {
   const [password, setPassword] = useState('');
   const [usernameError, setUsernameError] = useState('');
 
+  const navigation = useNavigation();
+
   const isUsernameValid = username.trim().length > 0;
   const isPasswordValid = password.trim().length > 0;
   const canLogin = isUsernameValid && isPasswordValid;
@@ -57,8 +59,11 @@ function SignIn({setLoggedIn}) {
           placeholder="비밀번호"
           value={password}
           secureTextEntry
-          onChangeText={setPassword} // Directly updating password state
+          onChangeText={setPassword} // 비밀번호 상태를 직접 업데이트
         />
+        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+          <Text style={styles.signUpText}>회원가입</Text>
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity
@@ -93,16 +98,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 25,
     padding: 12,
-    marginLeft: 20,
-    marginRight: 15,
+    marginLeft: 40,
+    marginRight: 40,
   },
   passwordInput: {
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 25,
     padding: 12,
-    marginLeft: 20,
-    marginRight: 15,
+    marginLeft: 40,
+    marginRight: 40,
   },
   signInButton: {
     padding: 16,
@@ -121,6 +126,13 @@ const styles = StyleSheet.create({
     color: 'red',
     marginLeft: 35,
     marginTop: 5,
+  },
+  signUpText: {
+    color: '#003366',
+    marginTop: 15,
+    textAlign: 'right',
+    marginRight: 50,
+    textDecorationLine: 'underline',
   },
 });
 
