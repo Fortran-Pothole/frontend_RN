@@ -57,8 +57,6 @@ function Map() {
   useEffect(() => {
     enableLayerGroup(LayerGroup.LAYER_GROUP_TRAFFIC);
   }, []);
-
-
   useEffect(() => {
     moveIntervalRef.current = setInterval(() => {
       moveTowardsEnd(
@@ -203,11 +201,12 @@ function Map() {
         />
       </NaverMapView>
 
-
       {showPotholeInfo && selectedPothole && (
-        <PotholeInfo position={selectedPothole} myPosition={myPosition} />
+        <PotholeInfo 
+          position={selectedPothole} 
+          myPosition={myPosition} 
+        />
       )}
-      <CircleComponent />
 
       <TouchableOpacity style={styles.micButton} onPress={openVoiceNotice}>
         <Image

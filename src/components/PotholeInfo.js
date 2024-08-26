@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import checkDistance from '../../types/checkDistance';
 
-function PotholeInfo({ position, myPosition }) {
 
+function PotholeInfo({ position, myPosition}) {
   const warningLevel = position.warning;
   const noticeCount = position.noticeCount || 0;
 
