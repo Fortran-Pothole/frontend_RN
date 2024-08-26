@@ -26,6 +26,8 @@ DerivedData
 .env
 .env.production
 .env.development
+react-native-config.d.ts
+
 
 # Android/IntelliJ
 #

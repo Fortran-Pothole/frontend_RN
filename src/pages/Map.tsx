@@ -18,12 +18,13 @@ import Geolocation from '@react-native-community/geolocation';
 import checkDistance from '../../types/checkDistance';
 import Tts from 'react-native-tts';
 import { moveTowardsEnd } from '../../types/locationUtils';
-import CircleComponent from '../components/CircleComponent';
 import PotholeInfo from '../components/PotholeInfo';
+import { usePotholeViewModel } from '../data/viewModels/PotholeViewModels';
 import potholePositions from '../components/potholePositions';
 
 function Map() {
   const navigation = useNavigation();
+  const { potholes, loading, error } = usePotholeViewModel();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const openVoiceNotice = () => {
     setIsModalVisible(true);
@@ -58,25 +59,27 @@ function Map() {
     enableLayerGroup(LayerGroup.LAYER_GROUP_TRAFFIC);
   }, []);
   useEffect(() => {
-    moveIntervalRef.current = setInterval(() => {
-      moveTowardsEnd(
-        myPosition, 
-        setMyPosition, 
-        start, 
-        end, 
-        potholePositions, 
-        setSelectedPothole,
-        setShowPotholeInfo, 
-        moveIntervalRef,
-        passedPotholes,
-        setPassedPotholes
-      ); 
-    }, 1000);
+    if(potholes.length > 0) {
+      moveIntervalRef.current = setInterval(() => {
+        moveTowardsEnd(
+          myPosition, 
+          setMyPosition, 
+          start, 
+          end, 
+          potholes,
+          setSelectedPothole,
+          setShowPotholeInfo, 
+          moveIntervalRef,
+          passedPotholes,
+          setPassedPotholes
+        ); 
+      }, 1000);
+    }
     return () => {
       clearInterval(moveIntervalRef.current);
       clearInterval(ttsIntervalRef.current);
     };
-  }, [myPosition]);
+  }, [myPosition, potholes]);
 
   useEffect(() => {
     Tts.getInitStatus()
@@ -152,7 +155,7 @@ function Map() {
       ),
     });
   }, [navigation]);
-
+  
   return (
     <View style={styles.container}>
       <NaverMapView
@@ -171,7 +174,7 @@ function Map() {
           latitude: myPosition?.latitude || start.latitude,
           longitude: myPosition?.longitude || start.longitude,
         }}>
-        {potholePositions.map(position => (
+        {potholes.map(position => (
           <Marker
             key={position.id}
             coordinate={{

@@ -1,4 +1,6 @@
 import axios from "axios";
+import Config from 'react-native-config';
+
 
 export interface Pothole {
     id:number;
@@ -11,7 +13,10 @@ export interface Pothole {
 export default class PotholeModel {
     static async fetchPotholes(): Promise<Pothole[]> {
         try {
-            const response = await axios.get('/pothole');
+            const url = `${Config.BASE_URL}/pothole/`;
+            console.log('Request URL:', url);
+            const response = await axios.get(`${Config.BASE_URL}/pothole/`);
+            console.log('Pothole Data:', response.data);
             return response.data.map((item:any) => ({
                 id: item.id,
                 latitude: parseFloat(item.lat),
@@ -21,7 +26,6 @@ export default class PotholeModel {
             }));
         } catch (error) {
             console.error('Failed to fetch potholes:', error);
-            throw error;
         }
     }
 }
