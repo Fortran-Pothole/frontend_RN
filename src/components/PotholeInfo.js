@@ -4,15 +4,16 @@ import checkDistance from '../../types/checkDistance';
 
 
 function PotholeInfo({ position, myPosition}) {
-  const warningLevel = position.warning;
-  const noticeCount = position.noticeCount || 0;
+  const encodedURL = encodeURI(position.image);
+  // const warningLevel = position.warning;
+  // const noticeCount = position.noticeCount || 0;
 
-  let warningText = '';
-  if (warningLevel >= 1 && warningLevel <= 3) {
-    warningText = '주의';
-  } else if (warningLevel >= 4 && warningLevel <= 5) {
-    warningText = '위험';
-  }
+  // let warningText = '';
+  // if (warningLevel >= 1 && warningLevel <= 3) {
+  //   warningText = '주의';
+  // } else if (warningLevel >= 4 && warningLevel <= 5) {
+  //   warningText = '위험';
+  // }
 
   return (
     <View style={styles.potholeInfoContainer}>
@@ -20,8 +21,8 @@ function PotholeInfo({ position, myPosition}) {
       <Text style={styles.potholeInfoText}>
         전방 {Math.round(checkDistance(myPosition, position))}m
       </Text>
-      <Text style={styles.potholeInfoText}>포트홀 위험도: {warningText}</Text>
-      <Text style={styles.potholeInfoText}>신고 수: {noticeCount}</Text>
+      {/* <Text style={styles.potholeInfoText}>포트홀 위험도: {warningText}</Text>
+      <Text style={styles.potholeInfoText}>신고 수: {noticeCount}</Text> */}
       <Text style={styles.potholeInfoText}>
         위도: {position.latitude.toFixed(5)}
       </Text>
@@ -30,8 +31,10 @@ function PotholeInfo({ position, myPosition}) {
       </Text>
       <View style={styles.imageContainer}>
         <Image
-          source={require('../assets/blue-dot.png')}
+          source={{ uri: encodedURL }}
           style={styles.potholeImage}
+          resizeMode="cover" 
+          onError={() => console.log('Failed to load image')} 
         />
       </View>
     </View>
