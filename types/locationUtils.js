@@ -91,23 +91,45 @@ export const calculateBearing = (start, end) => {
   return (bearing + 360) % 360; // 방위각을 0-360도로 변환
 };
 
-export const moveTowardsEnd = (myPosition, setMyPosition, start, end, potholePosition, setShowPotholeInfo, moveIntervalRef) => {
+export const moveTowardsEnd = (
+  myPosition, 
+  setMyPosition, 
+  start, 
+  end, 
+  potholePositions, 
+  setSelectedPothole, //가장 가까운 포트홀 
+  setShowPotholeInfo, 
+  moveIntervalRef,
+  passedPotholes,
+  setPassedPotholes
+) => {
   const direction = calculateDirection(myPosition, end);
   const newPosition = {
     latitude: myPosition.latitude + direction.deltaY * 0.0001, // 10m 이동
     longitude: myPosition.longitude + direction.deltaX * 0.0001,
   };
 
-  const distanceToPothole = checkDistance(newPosition, potholePosition);
-  if (distanceToPothole <= 500) {
-    const bearingToPothole = calculateBearing(newPosition, potholePosition);
-    const userBearing = calculateBearing(start, end);
-    const relativeBearing = (bearingToPothole - userBearing + 360) % 360;
+  // 현재 위치에서 500m 이내의 포트홀만 필터링하고, 가장 가까운 포트홀 찾기
+  const closePotholes = potholePositions
+    .map(position => ({
+      ...position,
+      distance: checkDistance(newPosition, position),
+    }))
+    .filter(position => position.distance <= 400 && !passedPotholes.has(position.id))
+    .sort((a, b) => a.distance - b.distance);
 
-    if (relativeBearing < 90 || relativeBearing > 270) {
-      setShowPotholeInfo(true);
-    } else {
-      setShowPotholeInfo(false);
+  if (closePotholes.length > 0) {
+    const nearestPothole = closePotholes[0]; // 가장 가까운 포트홀 선택
+    setSelectedPothole(nearestPothole);
+    setShowPotholeInfo(true);
+
+    // 가장 가까운 포트홀이 사용자를 지나쳤는지 확인
+    const distanceToNearestPothole = checkDistance(myPosition, nearestPothole);
+    const distanceToNewPosition = checkDistance(newPosition, nearestPothole);
+
+    // 사용자가 포트홀을 지나치면, 지나간 포트홀로 처리
+    if (distanceToNewPosition > distanceToNearestPothole) {
+      setPassedPotholes(prev => new Set(prev).add(nearestPothole.id));
     }
   } else {
     setShowPotholeInfo(false);
@@ -120,5 +142,4 @@ export const moveTowardsEnd = (myPosition, setMyPosition, start, end, potholePos
   } else {
     setMyPosition(newPosition);
   }
-  
 };

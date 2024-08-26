@@ -2,17 +2,37 @@ import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import checkDistance from '../../types/checkDistance';
 
-function PotholeInfo({ position, myPosition }) {
+
+function PotholeInfo({ position, myPosition}) {
+  const warningLevel = position.warning;
+  const noticeCount = position.noticeCount || 0;
+
+  let warningText = '';
+  if (warningLevel >= 1 && warningLevel <= 3) {
+    warningText = '주의';
+  } else if (warningLevel >= 4 && warningLevel <= 5) {
+    warningText = '위험';
+  }
+
   return (
     <View style={styles.potholeInfoContainer}>
       <Text style={styles.potholeInfoHeader}>포트홀 정보</Text>
-      <Text style={styles.potholeInfoText}>전방 {Math.round(checkDistance(myPosition, position))}m</Text>
-      <Text style={styles.potholeInfoText}>포트홀 위험도: 주의</Text>
-      <Text style={styles.potholeInfoText}>신고 수: 2</Text>
-      <Text style={styles.potholeInfoText}>위도: {position.latitude.toFixed(5)}</Text>
-      <Text style={styles.potholeInfoText}>경도: {position.longitude.toFixed(5)}</Text>
+      <Text style={styles.potholeInfoText}>
+        전방 {Math.round(checkDistance(myPosition, position))}m
+      </Text>
+      <Text style={styles.potholeInfoText}>포트홀 위험도: {warningText}</Text>
+      <Text style={styles.potholeInfoText}>신고 수: {noticeCount}</Text>
+      <Text style={styles.potholeInfoText}>
+        위도: {position.latitude.toFixed(5)}
+      </Text>
+      <Text style={styles.potholeInfoText}>
+        경도: {position.longitude.toFixed(5)}
+      </Text>
       <View style={styles.imageContainer}>
-        <Image source={require('../assets/blue-dot.png')} style={styles.potholeImage} />
+        <Image
+          source={require('../assets/blue-dot.png')}
+          style={styles.potholeImage}
+        />
       </View>
     </View>
   );
