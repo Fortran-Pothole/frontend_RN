@@ -17,14 +17,10 @@ import NaverMapView, {Marker, Path, LayerGroup} from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
 import checkDistance from '../../types/checkDistance';
 import Tts from 'react-native-tts';
-import {
-  movePosition,
-  getDirection,
-  moveTowardsEnd,
-} from '../../types/locationUtils';
+import { moveTowardsEnd } from '../../types/locationUtils';
 import CircleComponent from '../components/CircleComponent';
 import PotholeInfo from '../components/PotholeInfo';
-import markerData from '../components/marker.json';
+import potholePositions from '../components/potholePositions';
 
 function Map() {
   const navigation = useNavigation();
@@ -36,6 +32,8 @@ function Map() {
     setIsModalVisible(false);
   };
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
+  const [selectedPothole, setSelectedPothole] = useState(null);
+  const [passedPotholes, setPassedPotholes] = useState(new Set());
   const moveIntervalRef = useRef(null);
   const mapRef = useRef(null);
   const ttsIntervalRef = useRef(null); 
@@ -53,25 +51,34 @@ function Map() {
   };
 
   // 고정된 포트홀 위치
-  const potholePosition = { latitude:  37.32426382411811, longitude: 127.10349143909238 };
-  const start = { latitude: 37.31207444155034, longitude: 127.10358835825805 };
-  const end = { latitude:  37.34518559022692, longitude: 127.1036930268635};
+  const start = { latitude: 37.30807444155034, longitude: 127.10349143909238 };
+  const end = { latitude:  37.34518559022692, longitude: 127.10349143909238};
 
   useEffect(() => {
     enableLayerGroup(LayerGroup.LAYER_GROUP_TRAFFIC);
   }, []);
 
+
   useEffect(() => {
     moveIntervalRef.current = setInterval(() => {
-      moveTowardsEnd(myPosition, setMyPosition, start, end, potholePosition, setShowPotholeInfo, moveIntervalRef); 
+      moveTowardsEnd(
+        myPosition, 
+        setMyPosition, 
+        start, 
+        end, 
+        potholePositions, 
+        setSelectedPothole,
+        setShowPotholeInfo, 
+        moveIntervalRef,
+        passedPotholes,
+        setPassedPotholes
+      ); 
     }, 1000);
     return () => {
       clearInterval(moveIntervalRef.current);
       clearInterval(ttsIntervalRef.current);
     };
   }, [myPosition]);
-
-
 
   useEffect(() => {
     Tts.getInitStatus()
@@ -83,7 +90,6 @@ function Map() {
       .catch((error) => {
         console.error('TTS 초기화 실패 또는 언어 설정 오류:', error);
       });
-
     Tts.addEventListener('tts-start', () => {
       console.log('TTS 시작');
       isSpeakingRef.current = true;
@@ -109,22 +115,21 @@ function Map() {
   useEffect(() => {
     if (showPotholeInfo) {
       if (!isSpeakingRef.current) {
-        Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다. 속도를 줄여주세요`);
+        Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, selectedPothole))}미터 앞에 있습니다. 속도를 줄여주세요`);
       }
       ttsIntervalRef.current = setInterval(() => {
         if (!isSpeakingRef.current && showPotholeInfo) {
-          Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, potholePosition))}미터 앞에 있습니다. 속도를 줄여주세요`);
+          Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, selectedPothole))}미터 앞에 있습니다. 속도를 줄여주세요`);
         }
       }, 6000);
       
     } else {
       clearInterval(ttsIntervalRef.current);
     }
-
     return () => {
       clearInterval(ttsIntervalRef.current);
     };
-  }, [showPotholeInfo, myPosition, potholePosition]);
+  }, [showPotholeInfo, myPosition, selectedPothole]);
 
 
   React.useLayoutEffect(() => {
@@ -162,19 +167,25 @@ function Map() {
         rotateGesturesEnabled={false}
         stopGesturesEnabled={false}
         center={{
-          zoom: 16,
+          zoom: 18,
           tilt: 100,
           bearing: 0,
           latitude: myPosition?.latitude || start.latitude,
           longitude: myPosition?.longitude || start.longitude,
         }}>
-        <Marker
-          coordinate={potholePosition}
-          width={35}
-          height={35}
-          caption={{text: '포트홀'}}
-          image={require('../assets/pothole.png')}
-        />
+        {potholePositions.map(position => (
+          <Marker
+            key={position.id}
+            coordinate={{
+              latitude: position.latitude,
+              longitude: position.longitude,
+            }}
+            width={35}
+            height={35}
+            caption={{ text:  `포트홀 ${position.id}` }}
+            image={require('../assets/pothole.png')}
+          />
+        ))}
         <Path
           coordinates={[start, end]}
           width={3}
@@ -192,10 +203,10 @@ function Map() {
         />
       </NaverMapView>
 
-      {showPotholeInfo && (
-        <PotholeInfo position={potholePosition} myPosition={myPosition} />
-      )}
 
+      {showPotholeInfo && selectedPothole && (
+        <PotholeInfo position={selectedPothole} myPosition={myPosition} />
+      )}
       <CircleComponent />
 
       <TouchableOpacity style={styles.micButton} onPress={openVoiceNotice}>
