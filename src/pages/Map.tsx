@@ -31,7 +31,6 @@ function Map() {
   const closeVoiceNotice = () => {
     setIsModalVisible(false);
   };
-  
   const screenWidth = Dimensions.get('window').width;
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
   const [selectedPothole, setSelectedPothole] = useState(null);
@@ -44,6 +43,26 @@ function Map() {
     latitude: 37.322119339148045,
     longitude: 127.10352593988907,
   });
+  const pauseTTS = () => {
+    if (isSpeakingRef.current) {
+      Tts.stop();
+    }
+    clearInterval(ttsIntervalRef.current);
+  };
+
+  const resumeTTS = () => {
+    if (showPotholeInfo && selectedPothole) {
+        const distance = Math.round(checkDistance(myPosition, selectedPothole));
+        if (distance > 0) {
+            Tts.speak(`포트홀이 ${distance}미터 앞에 있습니다. 속도를 줄여주세요`, {
+                onDone: () => isSpeakingRef.current = false,
+                onCancel: () => isSpeakingRef.current = false,
+                onError: () => isSpeakingRef.current = false,
+            });
+            isSpeakingRef.current = true;
+        }
+    }
+  };
 
   const enableLayerGroup = group => {
     if (mapRef.current) {
@@ -51,8 +70,9 @@ function Map() {
     }
   };
 
-  const start = { latitude: 37.24807444155034, longitude: 127.10349143909238 };
+  const start = { latitude: 35.24807444155034, longitude: 127.10349143909238 };
   const end = { latitude:  37.34518559022692, longitude: 127.10349143909238};
+
 
   useEffect(() => {
     enableLayerGroup(LayerGroup.LAYER_GROUP_TRAFFIC);
@@ -85,21 +105,18 @@ function Map() {
       .then(() => {
         console.log('TTS 초기화 성공');
         Tts.setDefaultLanguage('ko-KR');
-        Tts.setDefaultRate(0.4);
+        Tts.setDefaultRate(0.5);
       })
       .catch((error) => {
         console.error('TTS 초기화 실패 또는 언어 설정 오류:', error);
       });
     Tts.addEventListener('tts-start', () => {
-      // console.log('TTS 시작');
       isSpeakingRef.current = true;
     });
     Tts.addEventListener('tts-finish', () => {
-      // console.log('TTS 완료');
       isSpeakingRef.current = false;
     });
     Tts.addEventListener('tts-cancel', () => {
-      console.log('TTS 취소');
       isSpeakingRef.current = false;
     });
     Tts.addEventListener('tts-error', () => {
@@ -113,23 +130,24 @@ function Map() {
   }, []);
 
   useEffect(() => {
-    if (showPotholeInfo) {
-      if (!isSpeakingRef.current) {
-        Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, selectedPothole))}미터 앞에 있습니다. 속도를 줄여주세요`);
+    //평상시 주행 중일때 
+    if (showPotholeInfo && !isModalVisible) {
+      if (!isSpeakingRef.current || checkDistance(myPosition, selectedPothole) <= 0) {
+        pauseTTS(); 
+        resumeTTS(); 
       }
-      ttsIntervalRef.current = setInterval(() => {
-        if (!isSpeakingRef.current && showPotholeInfo) {
-          Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, selectedPothole))}미터 앞에 있습니다. 속도를 줄여주세요`);
-        }
-      }, 6000);
-      
-    } else {
+    } 
+    //신고 모달이 켜져있을때
+    if(isModalVisible) {
+      pauseTTS();
+    }
+    else {
       clearInterval(ttsIntervalRef.current);
     }
     return () => {
       clearInterval(ttsIntervalRef.current);
     };
-  }, [showPotholeInfo, myPosition, selectedPothole]);
+  }, [showPotholeInfo, myPosition, selectedPothole, isModalVisible]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -153,6 +171,7 @@ function Map() {
       ),
     });
   }, [navigation]);
+
   return (
     <View style={styles.container}>
       <NaverMapView
@@ -238,7 +257,6 @@ function Map() {
             onPress={closeVoiceNotice}>
             <Text style={styles.closeButtonText}>닫기</Text>
           </TouchableOpacity>
-          {/* <Button title="닫기" onPress={closeVoiceNotice} /> */}
         </View>
       </Modal>
     </View>

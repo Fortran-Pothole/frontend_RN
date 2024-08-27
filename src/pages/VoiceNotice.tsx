@@ -9,9 +9,11 @@ function VoiceNotice({ startRecognition, currentLocation, onClose }) {
   const [result, setResult] = useState('');
   const [countdown, setCountdown] = useState(2);
   const [isRecording, setIsRecording] = useState(false);
+  const [prompt, setPrompt] = useState('위치와 신고 내용을 말씀해주세요');
 
   useEffect(() => {
     Voice.onSpeechResults = onSpeechResults;
+    Voice.onSpeechEnd = onSpeechEnd;
 
     return () => {
       Voice.destroy().then(Voice.removeAllListeners);
@@ -20,12 +22,16 @@ function VoiceNotice({ startRecognition, currentLocation, onClose }) {
 
   const onSpeechResults = async (event) => {
     const speechResult = event.value[0];
-    setResult(speechResult);
+    console.log('onSpeechResults:', speechResult);
+    // setResult(speechResult);
 
     if (speechResult.includes('신고')) {
       Tts.speak('이 위치로 포트홀을 신고할게요');
       await PotholeModel.reportPothole(currentLocation.latitude, currentLocation.longitude);
-      onClose(); // 모달 닫기
+      onClose(); 
+    } else {
+      setPrompt('다시 한번 신고 내용을 말씀해주세요'); 
+      restartListening(); 
     }
   };
 
@@ -34,6 +40,24 @@ function VoiceNotice({ startRecognition, currentLocation, onClose }) {
       await Voice.start('ko-KR');
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const restartListening = async () => {
+    try {
+      await Voice.cancel(); 
+      setTimeout(async () => {
+        await Voice.start('ko-KR');
+      }, 1000); 
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  
+  const onSpeechEnd = () => {
+    if (!result.includes('신고')) {
+      setPrompt('다시 한번 신고 내용을 말씀해주세요'); 
+      restartListening();
     }
   };
 
@@ -59,7 +83,7 @@ function VoiceNotice({ startRecognition, currentLocation, onClose }) {
       style={styles.container}
     >
       <Text style={styles.title}>
-        {isRecording ? (result || '위치와 신고 내용을 말씀해주세요') : countdown}
+        {isRecording ? (result || prompt) : countdown}
       </Text>
       <Image
         source={require('../assets/icon_mic_white.png')}

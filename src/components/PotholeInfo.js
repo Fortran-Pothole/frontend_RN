@@ -4,18 +4,18 @@ import checkDistance from '../../types/checkDistance';
 
 
 function PotholeInfo({ position, myPosition}) {
-  const encodedURL = encodeURI(position.image);
+  const encodedURL = position.image ? encodeURI(position.image) : null;
   const warningLevel = position.warning;
 
   let warningText = '';
-  let warningColor = '#000000'; // 기본 색상을 검정색으로 설정
+  let warningColor = '#000000'; 
 
   if (warningLevel >= 1 && warningLevel <= 3) {
     warningText = '주의';
-    warningColor = '#FFA500'; // 오렌지 색상
+    warningColor = '#FFA500'; 
   } else if (warningLevel >= 4 && warningLevel <= 5) {
     warningText = '위험';
-    warningColor = '#FF0000'; // 빨간색
+    warningColor = '#FF0000'; 
   }
 
   return (
@@ -35,7 +35,7 @@ function PotholeInfo({ position, myPosition}) {
       </Text>
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: encodedURL }}
+          source={encodedURL ? { uri: encodedURL } : require('../assets/pothole_example.png')}
           style={styles.potholeImage}
           resizeMode="cover" 
           onError={() => console.log('Failed to load image')} 

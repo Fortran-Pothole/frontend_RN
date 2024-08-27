@@ -1,4 +1,5 @@
 // locationUtils.js
+import Tts from "react-native-tts";
 
 // 두 좌표 사이의 거리 계산 함수 (단위: 미터)
 export const checkDistance = (pos1, pos2) => {
@@ -91,25 +92,25 @@ export const calculateBearing = (start, end) => {
   return (bearing + 360) % 360; // 방위각을 0-360도로 변환
 };
 
-export const moveTowardsEnd = (
+export const processPotholeDetection = (
   myPosition, 
   setMyPosition, 
   start, 
   end, 
   potholePositions, 
-  setSelectedPothole, //가장 가까운 포트홀 
+  setSelectedPothole, 
   setShowPotholeInfo, 
-  moveIntervalRef,
-  passedPotholes,
+  moveIntervalRef, 
+  passedPotholes, 
   setPassedPotholes
 ) => {
   const direction = calculateDirection(myPosition, end);
   const newPosition = {
-    latitude: myPosition.latitude + direction.deltaY * 0.0001, // 10m 이동
+    latitude: myPosition.latitude + direction.deltaY * 0.0001, // 예시로 10m 이동
     longitude: myPosition.longitude + direction.deltaX * 0.0001,
   };
 
-  // 현재 위치에서 500m 이내의 포트홀만 필터링하고, 가장 가까운 포트홀 찾기
+  // 현재 위치에서 400m 이내의 포트홀만 필터링하고, 가장 가까운 포트홀 찾기
   const closePotholes = potholePositions
     .map(position => ({
       ...position,
@@ -127,12 +128,15 @@ export const moveTowardsEnd = (
     const distanceToNearestPothole = checkDistance(myPosition, nearestPothole);
     const distanceToNewPosition = checkDistance(newPosition, nearestPothole);
 
-    // 사용자가 포트홀을 지나치면, 지나간 포트홀로 처리
+    // 사용자가 포트홀을 지나치면, 지나간 포트홀로 처리하고 TTS 업데이트
     if (distanceToNewPosition > distanceToNearestPothole) {
       setPassedPotholes(prev => new Set(prev).add(nearestPothole.id));
+      setShowPotholeInfo(false); // 포트홀 정보를 숨김
+      Tts.stop(); // 현재 TTS 중지
     }
   } else {
     setShowPotholeInfo(false);
+    Tts.stop(); // 안내할 포트홀이 없을 경우 TTS 중지
   }
 
   const distanceToEnd = checkDistance(newPosition, end);
@@ -142,4 +146,84 @@ export const moveTowardsEnd = (
   } else {
     setMyPosition(newPosition);
   }
+};
+
+// export const moveTowardsEnd = (
+//   myPosition, 
+//   setMyPosition, 
+//   start, 
+//   end, 
+//   potholePositions, 
+//   setSelectedPothole, //가장 가까운 포트홀 
+//   setShowPotholeInfo, 
+//   moveIntervalRef,
+//   passedPotholes,
+//   setPassedPotholes
+// ) => {
+//   const direction = calculateDirection(myPosition, end);
+//   const newPosition = {
+//     latitude: myPosition.latitude + direction.deltaY * 0.0001, // 10m 이동
+//     longitude: myPosition.longitude + direction.deltaX * 0.0001,
+//   };
+
+//   // 현재 위치에서 500m 이내의 포트홀만 필터링하고, 가장 가까운 포트홀 찾기
+//   const closePotholes = potholePositions
+//     .map(position => ({
+//       ...position,
+//       distance: checkDistance(newPosition, position),
+//     }))
+//     .filter(position => position.distance <= 400 && !passedPotholes.has(position.id))
+//     .sort((a, b) => a.distance - b.distance);
+
+//   if (closePotholes.length > 0) {
+//     const nearestPothole = closePotholes[0]; // 가장 가까운 포트홀 선택
+//     setSelectedPothole(nearestPothole);
+//     setShowPotholeInfo(true);
+
+//     // 가장 가까운 포트홀이 사용자를 지나쳤는지 확인
+//     const distanceToNearestPothole = checkDistance(myPosition, nearestPothole);
+//     const distanceToNewPosition = checkDistance(newPosition, nearestPothole);
+
+//     // 사용자가 포트홀을 지나치면, 지나간 포트홀로 처리
+//     if (distanceToNewPosition > distanceToNearestPothole) {
+//       setPassedPotholes(prev => new Set(prev).add(nearestPothole.id));
+//     }
+//   } else {
+//     setShowPotholeInfo(false);
+//   }
+
+//   const distanceToEnd = checkDistance(newPosition, end);
+//   if (distanceToEnd <= 0.0001) {
+//     clearInterval(moveIntervalRef.current); 
+//     setMyPosition(end);
+//   } else {
+//     setMyPosition(newPosition);
+//   }
+// };
+
+export function moveTowardsEnd(
+  myPosition, 
+  setMyPosition, 
+  start, 
+  end, 
+  potholePositions, 
+  setSelectedPothole, 
+  setShowPotholeInfo, 
+  moveIntervalRef, 
+  passedPotholes, 
+  setPassedPotholes
+) {
+  // 포트홀 탐지 및 처리 로직 호출
+  processPotholeDetection(
+    myPosition,
+    setMyPosition,
+    start,
+    end,
+    potholePositions,
+    setSelectedPothole,
+    setShowPotholeInfo,
+    moveIntervalRef,
+    passedPotholes,
+    setPassedPotholes
+  );
 };
