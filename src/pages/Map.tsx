@@ -5,9 +5,7 @@ import {
   StyleSheet,
   Image,
   Modal,
-  Button,
   Dimensions,
-  PanResponder,
 } from 'react-native';
 import React, {useState, useEffect, useRef} from 'react';
 import IconSetting from '../assets/icon_system_line.svg';
@@ -20,18 +18,20 @@ import Tts from 'react-native-tts';
 import { moveTowardsEnd } from '../../types/locationUtils';
 import PotholeInfo from '../components/PotholeInfo';
 import { usePotholeViewModel } from '../data/viewModels/PotholeViewModels';
-import potholePositions from '../components/potholePositions';
 
 function Map() {
   const navigation = useNavigation();
   const { potholes, loading, error } = usePotholeViewModel();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState({ latitude: 0, longitude: 0 });
   const openVoiceNotice = () => {
+    setCurrentLocation(myPosition); // 현재 위치를 저장
     setIsModalVisible(true);
   };
   const closeVoiceNotice = () => {
     setIsModalVisible(false);
   };
+  const screenWidth = Dimensions.get('window').width;
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
   const [selectedPothole, setSelectedPothole] = useState(null);
   const [passedPotholes, setPassedPotholes] = useState(new Set());
@@ -39,11 +39,30 @@ function Map() {
   const mapRef = useRef(null);
   const ttsIntervalRef = useRef(null); 
   const isSpeakingRef = useRef(false);
-  
   const [myPosition, setMyPosition] = useState({
     latitude: 37.322119339148045,
     longitude: 127.10352593988907,
   });
+  const pauseTTS = () => {
+    if (isSpeakingRef.current) {
+      Tts.stop();
+    }
+    clearInterval(ttsIntervalRef.current);
+  };
+
+  const resumeTTS = () => {
+    if (showPotholeInfo && selectedPothole) {
+        const distance = Math.round(checkDistance(myPosition, selectedPothole));
+        if (distance > 0) {
+            Tts.speak(`포트홀이 ${distance}미터 앞에 있습니다. 속도를 줄여주세요`, {
+                onDone: () => isSpeakingRef.current = false,
+                onCancel: () => isSpeakingRef.current = false,
+                onError: () => isSpeakingRef.current = false,
+            });
+            isSpeakingRef.current = true;
+        }
+    }
+  };
 
   const enableLayerGroup = group => {
     if (mapRef.current) {
@@ -51,9 +70,9 @@ function Map() {
     }
   };
 
-  // 고정된 포트홀 위치
-  const start = { latitude: 37.30807444155034, longitude: 127.10349143909238 };
+  const start = { latitude: 35.24807444155034, longitude: 127.10349143909238 };
   const end = { latitude:  37.34518559022692, longitude: 127.10349143909238};
+
 
   useEffect(() => {
     enableLayerGroup(LayerGroup.LAYER_GROUP_TRAFFIC);
@@ -86,21 +105,18 @@ function Map() {
       .then(() => {
         console.log('TTS 초기화 성공');
         Tts.setDefaultLanguage('ko-KR');
-        Tts.setDefaultRate(0.4);
+        Tts.setDefaultRate(0.5);
       })
       .catch((error) => {
         console.error('TTS 초기화 실패 또는 언어 설정 오류:', error);
       });
     Tts.addEventListener('tts-start', () => {
-      console.log('TTS 시작');
       isSpeakingRef.current = true;
     });
     Tts.addEventListener('tts-finish', () => {
-      console.log('TTS 완료');
       isSpeakingRef.current = false;
     });
     Tts.addEventListener('tts-cancel', () => {
-      console.log('TTS 취소');
       isSpeakingRef.current = false;
     });
     Tts.addEventListener('tts-error', () => {
@@ -114,23 +130,24 @@ function Map() {
   }, []);
 
   useEffect(() => {
-    if (showPotholeInfo) {
-      if (!isSpeakingRef.current) {
-        Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, selectedPothole))}미터 앞에 있습니다. 속도를 줄여주세요`);
+    //평상시 주행 중일때 
+    if (showPotholeInfo && !isModalVisible) {
+      if (!isSpeakingRef.current || checkDistance(myPosition, selectedPothole) <= 0) {
+        pauseTTS(); 
+        resumeTTS(); 
       }
-      ttsIntervalRef.current = setInterval(() => {
-        if (!isSpeakingRef.current && showPotholeInfo) {
-          Tts.speak(`포트홀이 ${Math.round(checkDistance(myPosition, selectedPothole))}미터 앞에 있습니다. 속도를 줄여주세요`);
-        }
-      }, 6000);
-      
-    } else {
+    } 
+    //신고 모달이 켜져있을때
+    if(isModalVisible) {
+      pauseTTS();
+    }
+    else {
       clearInterval(ttsIntervalRef.current);
     }
     return () => {
       clearInterval(ttsIntervalRef.current);
     };
-  }, [showPotholeInfo, myPosition, selectedPothole]);
+  }, [showPotholeInfo, myPosition, selectedPothole, isModalVisible]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -154,6 +171,7 @@ function Map() {
       ),
     });
   }, [navigation]);
+
   return (
     <View style={styles.container}>
       <NaverMapView
@@ -172,19 +190,26 @@ function Map() {
           latitude: myPosition?.latitude || start.latitude,
           longitude: myPosition?.longitude || start.longitude,
         }}>
-        {potholes.map(position => (
-          <Marker
-            key={position.id}
-            coordinate={{
-              latitude: position.latitude,
-              longitude: position.longitude,
-            }}
-            width={35}
-            height={35}
-            caption={{ text:  `포트홀 ${position.id}` }}
-            image={require('../assets/pothole.png')}
-          />
-        ))}
+        {potholes.map(position => {
+          const isDangerous = position.warning >= 4;
+          const markerImage = isDangerous 
+            ? require('../assets/pothole_warning.png') 
+            : require('../assets/pothole.png');
+          const markerSize = isDangerous ? 45 : 35;
+
+          return (
+            <Marker
+              key={position.id}
+              coordinate={{
+                latitude: position.latitude,
+                longitude: position.longitude,
+              }}
+              width={markerSize}
+              height={markerSize}
+              image={markerImage}
+            />
+          );
+        })}
         <Path
           coordinates={[start, end]}
           width={3}
@@ -222,8 +247,16 @@ function Map() {
         visible={isModalVisible}
         onRequestClose={closeVoiceNotice}>
         <View style={styles.modalBackground}>
-          <VoiceNotice startRecognition={true} />
-          <Button title="닫기" onPress={closeVoiceNotice} />
+          <VoiceNotice 
+            startRecognition={true} 
+            currentLocation={currentLocation}
+            onClose = {closeVoiceNotice}
+          />
+          <TouchableOpacity
+            style={[styles.closeButton, { width: screenWidth }]}
+            onPress={closeVoiceNotice}>
+            <Text style={styles.closeButtonText}>닫기</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
     </View>
@@ -236,6 +269,18 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  closeButton: {
+    backgroundColor: '#003366',
+    paddingVertical: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   micButton: {
     position: 'absolute',
