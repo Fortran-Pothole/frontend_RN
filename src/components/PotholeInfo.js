@@ -18,7 +18,6 @@ function PotholeInfo({ position, myPosition}) {
     warningColor = '#FF0000'; // 빨간색
   }
 
-  console.log('Warning Text:', warningText, 'Color:', warningColor);
   return (
     <View style={styles.potholeInfoContainer}>
       <Text style={styles.potholeInfoHeader}>포트홀 정보</Text>

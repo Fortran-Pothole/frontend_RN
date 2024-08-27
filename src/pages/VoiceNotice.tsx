@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import Voice from 'react-native-voice';
 import LinearGradient from 'react-native-linear-gradient'; 
+import Tts from 'react-native-tts';
+import PotholeModel from '../data/models/PotholeModel';
 
-function VoiceNotice({ startRecognition }) {
+function VoiceNotice({ startRecognition, currentLocation, onClose }) {
   const [result, setResult] = useState('');
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(2);
   const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
@@ -16,8 +18,15 @@ function VoiceNotice({ startRecognition }) {
     };
   }, []);
 
-  const onSpeechResults = (event) => {
-    setResult(event.value[0]);
+  const onSpeechResults = async (event) => {
+    const speechResult = event.value[0];
+    setResult(speechResult);
+
+    if (speechResult.includes('신고')) {
+      Tts.speak('이 위치로 포트홀을 신고할게요');
+      await PotholeModel.reportPothole(currentLocation.latitude, currentLocation.longitude);
+      onClose(); // 모달 닫기
+    }
   };
 
   const startRecognizing = async () => {

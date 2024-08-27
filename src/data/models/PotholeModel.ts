@@ -40,18 +40,23 @@ export default class PotholeModel {
     }
     static async reportPothole(latitude: number, longitude: number): Promise<void> {
         try {
-            const url = `${Config.BASE_URL}/pothole/`;
-            const data = {
-                lat: latitude.toString(),
-                lng: longitude.toString(),
-                image: null,
-                done: -1
-            };
-            const response = await axios.post(url,data);
-            console.log('Pothole Reported:', response.data);
-        } catch(error) {
-            console.error('Failed to report pothole:', error);
-            throw error;
+          const url = `${Config.BASE_URL}/pothole/`;
+          const data = {
+            lat: latitude.toString(),
+            lng: longitude.toString(),
+            image: "",
+            done: -1,
+          };
+          console.log('Request Data:', data); // 요청 전에 데이터를 확인
+          const response = await axios.post(url, data, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          console.log('Pothole Reported:', response.data);
+        } catch (error) {
+          console.error('Failed to report pothole:', error.response?.data || error.message);
+          throw error;
         }
     }
 }

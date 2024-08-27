@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Image,
   Modal,
-  Button,
   Dimensions,
 } from 'react-native';
 import React, {useState, useEffect, useRef} from 'react';
@@ -24,12 +23,15 @@ function Map() {
   const navigation = useNavigation();
   const { potholes, loading, error } = usePotholeViewModel();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState({ latitude: 0, longitude: 0 });
   const openVoiceNotice = () => {
+    setCurrentLocation(myPosition); // 현재 위치를 저장
     setIsModalVisible(true);
   };
   const closeVoiceNotice = () => {
     setIsModalVisible(false);
   };
+  
   const screenWidth = Dimensions.get('window').width;
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
   const [selectedPothole, setSelectedPothole] = useState(null);
@@ -89,11 +91,11 @@ function Map() {
         console.error('TTS 초기화 실패 또는 언어 설정 오류:', error);
       });
     Tts.addEventListener('tts-start', () => {
-      console.log('TTS 시작');
+      // console.log('TTS 시작');
       isSpeakingRef.current = true;
     });
     Tts.addEventListener('tts-finish', () => {
-      console.log('TTS 완료');
+      // console.log('TTS 완료');
       isSpeakingRef.current = false;
     });
     Tts.addEventListener('tts-cancel', () => {
@@ -226,7 +228,11 @@ function Map() {
         visible={isModalVisible}
         onRequestClose={closeVoiceNotice}>
         <View style={styles.modalBackground}>
-          <VoiceNotice startRecognition={true} />
+          <VoiceNotice 
+            startRecognition={true} 
+            currentLocation={currentLocation}
+            onClose = {closeVoiceNotice}
+          />
           <TouchableOpacity
             style={[styles.closeButton, { width: screenWidth }]}
             onPress={closeVoiceNotice}>
