@@ -17,7 +17,16 @@ export default class PotholeModel {
             console.log('Request URL:', url);
             const response = await axios.get(`${Config.BASE_URL}/pothole/`);
             console.log('Pothole Data:', response.data);
-            return response.data.map((item:any) => ({
+            // 데이터 검증 및 필터링
+            return response.data
+            .filter((item: any) => {
+                const lat = parseFloat(item.lat);
+                const lng = parseFloat(item.lng);
+
+                // lat 또는 lng가 숫자가 아닌 경우 필터링
+                return !isNaN(lat) && !isNaN(lng);
+            })
+            .map((item: any) => ({
                 id: item.id,
                 latitude: parseFloat(item.lat),
                 longitude: parseFloat(item.lng),
@@ -26,6 +35,22 @@ export default class PotholeModel {
             }));
         } catch (error) {
             console.error('Failed to fetch potholes:', error);
+        }
+    }
+    static async reportPothole(latitude: number, longitude: number): Promise<void> {
+        try {
+            const url = `${Config.BASE_URL}/pothole/`;
+            const data = {
+                lat: latitude.toString(),
+                lng: longitude.toString(),
+                // image:
+                done: -1
+            };
+            const response = await axios.post(url,data);
+            console.log('Pothole Reported:', response.data);
+        } catch(error) {
+            console.error('Failed to report pothole:', error);
+            throw error;
         }
     }
 }
