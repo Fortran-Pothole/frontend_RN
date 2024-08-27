@@ -132,7 +132,6 @@ function Map() {
     };
   }, [showPotholeInfo, myPosition, selectedPothole]);
 
-
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -155,14 +154,13 @@ function Map() {
       ),
     });
   }, [navigation]);
-  
   return (
     <View style={styles.container}>
       <NaverMapView
         ref={mapRef}
         style={styles.map}
         zoomControl={false}
-        scrollGesturesEnabled={false}
+        scrollGesturesEnabled={true}
         zoomGesturesEnabled={true}
         tiltGesturesEnabled={false}
         rotateGesturesEnabled={false}
