@@ -8,6 +8,7 @@ export interface Pothole {
     longitude: number;
     image: String;
     done: number;
+    warning: number;
 }
 
 export default class PotholeModel {
@@ -22,7 +23,6 @@ export default class PotholeModel {
             .filter((item: any) => {
                 const lat = parseFloat(item.lat);
                 const lng = parseFloat(item.lng);
-
                 // lat 또는 lng가 숫자가 아닌 경우 필터링
                 return !isNaN(lat) && !isNaN(lng);
             })
@@ -30,7 +30,8 @@ export default class PotholeModel {
                 id: item.id,
                 latitude: parseFloat(item.lat),
                 longitude: parseFloat(item.lng),
-                image: item.image,
+                warning: item.warning,
+                image: item.image || '',
                 done: item.done,
             }));
         } catch (error) {
@@ -43,7 +44,7 @@ export default class PotholeModel {
             const data = {
                 lat: latitude.toString(),
                 lng: longitude.toString(),
-                // image:
+                image: null,
                 done: -1
             };
             const response = await axios.post(url,data);

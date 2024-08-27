@@ -5,24 +5,29 @@ import checkDistance from '../../types/checkDistance';
 
 function PotholeInfo({ position, myPosition}) {
   const encodedURL = encodeURI(position.image);
-  // const warningLevel = position.warning;
-  // const noticeCount = position.noticeCount || 0;
+  const warningLevel = position.warning;
 
-  // let warningText = '';
-  // if (warningLevel >= 1 && warningLevel <= 3) {
-  //   warningText = '주의';
-  // } else if (warningLevel >= 4 && warningLevel <= 5) {
-  //   warningText = '위험';
-  // }
+  let warningText = '';
+  let warningColor = '#000000'; // 기본 색상을 검정색으로 설정
 
+  if (warningLevel >= 1 && warningLevel <= 3) {
+    warningText = '주의';
+    warningColor = '#FFA500'; // 오렌지 색상
+  } else if (warningLevel >= 4 && warningLevel <= 5) {
+    warningText = '위험';
+    warningColor = '#FF0000'; // 빨간색
+  }
+
+  console.log('Warning Text:', warningText, 'Color:', warningColor);
   return (
     <View style={styles.potholeInfoContainer}>
       <Text style={styles.potholeInfoHeader}>포트홀 정보</Text>
       <Text style={styles.potholeInfoText}>
         전방 {Math.round(checkDistance(myPosition, position))}m
       </Text>
-      {/* <Text style={styles.potholeInfoText}>포트홀 위험도: {warningText}</Text>
-      <Text style={styles.potholeInfoText}>신고 수: {noticeCount}</Text> */}
+      <Text style={[styles.potholeInfoText, { color: warningColor }]}>
+        포트홀 위험도: {warningText}
+      </Text>
       <Text style={styles.potholeInfoText}>
         위도: {position.latitude.toFixed(5)}
       </Text>

@@ -7,7 +7,6 @@ import {
   Modal,
   Button,
   Dimensions,
-  PanResponder,
 } from 'react-native';
 import React, {useState, useEffect, useRef} from 'react';
 import IconSetting from '../assets/icon_system_line.svg';
@@ -20,7 +19,6 @@ import Tts from 'react-native-tts';
 import { moveTowardsEnd } from '../../types/locationUtils';
 import PotholeInfo from '../components/PotholeInfo';
 import { usePotholeViewModel } from '../data/viewModels/PotholeViewModels';
-import potholePositions from '../components/potholePositions';
 
 function Map() {
   const navigation = useNavigation();
@@ -32,6 +30,7 @@ function Map() {
   const closeVoiceNotice = () => {
     setIsModalVisible(false);
   };
+  const screenWidth = Dimensions.get('window').width;
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
   const [selectedPothole, setSelectedPothole] = useState(null);
   const [passedPotholes, setPassedPotholes] = useState(new Set());
@@ -39,7 +38,6 @@ function Map() {
   const mapRef = useRef(null);
   const ttsIntervalRef = useRef(null); 
   const isSpeakingRef = useRef(false);
-  
   const [myPosition, setMyPosition] = useState({
     latitude: 37.322119339148045,
     longitude: 127.10352593988907,
@@ -51,8 +49,7 @@ function Map() {
     }
   };
 
-  // 고정된 포트홀 위치
-  const start = { latitude: 37.30807444155034, longitude: 127.10349143909238 };
+  const start = { latitude: 37.24807444155034, longitude: 127.10349143909238 };
   const end = { latitude:  37.34518559022692, longitude: 127.10349143909238};
 
   useEffect(() => {
@@ -172,19 +169,26 @@ function Map() {
           latitude: myPosition?.latitude || start.latitude,
           longitude: myPosition?.longitude || start.longitude,
         }}>
-        {potholes.map(position => (
-          <Marker
-            key={position.id}
-            coordinate={{
-              latitude: position.latitude,
-              longitude: position.longitude,
-            }}
-            width={35}
-            height={35}
-            caption={{ text:  `포트홀 ${position.id}` }}
-            image={require('../assets/pothole.png')}
-          />
-        ))}
+        {potholes.map(position => {
+          const isDangerous = position.warning >= 4;
+          const markerImage = isDangerous 
+            ? require('../assets/pothole_warning.png') 
+            : require('../assets/pothole.png');
+          const markerSize = isDangerous ? 45 : 35;
+
+          return (
+            <Marker
+              key={position.id}
+              coordinate={{
+                latitude: position.latitude,
+                longitude: position.longitude,
+              }}
+              width={markerSize}
+              height={markerSize}
+              image={markerImage}
+            />
+          );
+        })}
         <Path
           coordinates={[start, end]}
           width={3}
@@ -223,7 +227,12 @@ function Map() {
         onRequestClose={closeVoiceNotice}>
         <View style={styles.modalBackground}>
           <VoiceNotice startRecognition={true} />
-          <Button title="닫기" onPress={closeVoiceNotice} />
+          <TouchableOpacity
+            style={[styles.closeButton, { width: screenWidth }]}
+            onPress={closeVoiceNotice}>
+            <Text style={styles.closeButtonText}>닫기</Text>
+          </TouchableOpacity>
+          {/* <Button title="닫기" onPress={closeVoiceNotice} /> */}
         </View>
       </Modal>
     </View>
@@ -236,6 +245,18 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  closeButton: {
+    backgroundColor: '#003366',
+    paddingVertical: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   micButton: {
     position: 'absolute',
