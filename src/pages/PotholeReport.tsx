@@ -7,16 +7,20 @@ import {
   StyleSheet,
   ScrollView,
   Image,
+  Alert,
+  Platform,
 } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 import LocationIcon from '../assets/icon_location.svg';
 import ImageIcon from '../assets/icon _image_gallery.svg';
-import CancelIcon from '../assets/icon_cancel_img.svg'; // 삭제 아이콘 추가
+import CancelIcon from '../assets/icon_cancel_img.svg';
 import {launchImageLibrary} from 'react-native-image-picker';
+import {PERMISSIONS, request, check, RESULTS} from 'react-native-permissions';
 
 const PotholeReport = ({navigation}) => {
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
-  const [photos, setPhotos] = useState([]); // 업로드된 이미지들을 저장할 상태
+  const [photos, setPhotos] = useState([]);
 
   const isNextButtonEnabled =
     location.trim().length > 0 && description.trim().length > 0;
@@ -38,14 +42,95 @@ const PotholeReport = ({navigation}) => {
         console.log('ImagePicker Error: ', response.errorMessage);
       } else {
         const selectedImage = response.assets[0].uri;
-        setPhotos([...photos, selectedImage]); // 선택한 이미지를 상태에 추가
+        setPhotos([...photos, selectedImage]);
       }
     });
   };
 
   const handleDeletePhoto = index => {
     const newPhotos = photos.filter((_, i) => i !== index);
-    setPhotos(newPhotos); // 이미지 삭제 후 상태 업데이트
+    setPhotos(newPhotos);
+  };
+
+  const checkLocationPermission = async () => {
+    const result = await check(
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
+    );
+
+    switch (result) {
+      case RESULTS.UNAVAILABLE:
+        Alert.alert('오류', '이 기기에서 위치 서비스를 사용할 수 없습니다.');
+        break;
+      case RESULTS.DENIED:
+        requestLocationPermission();
+        break;
+      case RESULTS.LIMITED:
+        Alert.alert('알림', '위치 서비스가 제한적으로 설정되어 있습니다.');
+        break;
+      case RESULTS.GRANTED:
+        handleGetCurrentLocation();
+        break;
+      case RESULTS.BLOCKED:
+        Alert.alert(
+          '권한 거부됨',
+          '위치 서비스가 거부되었습니다. 설정에서 권한을 허용해주세요.',
+          [{text: '확인'}],
+        );
+        break;
+    }
+  };
+
+  const requestLocationPermission = async () => {
+    const result = await request(
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
+    );
+
+    if (result === RESULTS.GRANTED) {
+      handleGetCurrentLocation();
+    } else {
+      Alert.alert(
+        '권한 필요',
+        '위치 서비스를 사용하려면 위치 권한이 필요합니다.',
+        [{text: '확인'}],
+      );
+    }
+  };
+
+  const handleGetCurrentLocation = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        setLocation(`위도: ${latitude}, 경도: ${longitude}`);
+      },
+      error => {
+        console.error(
+          'Error Code: ',
+          error.code,
+          'Error Message: ',
+          error.message,
+        );
+        if (error.code === 1) {
+          Alert.alert('위치 접근 권한이 없습니다. 권한을 허용해주세요.');
+        } else if (error.code === 2) {
+          Alert.alert(
+            '위치를 가져올 수 없습니다. 네트워크 상태를 확인해주세요.',
+          );
+        } else if (error.code === 3) {
+          Alert.alert('위치 요청이 타임아웃되었습니다. 다시 시도해주세요.');
+        } else {
+          Alert.alert('알 수 없는 오류가 발생했습니다.');
+        }
+      },
+      {
+        enableHighAccuracy: false, // 네트워크 기반 위치 확인
+        timeout: 30000, // 타임아웃 시간을 30초로 늘림
+        maximumAge: 0, // 항상 최신 위치 정보 사용
+      },
+    );
   };
 
   return (
@@ -54,7 +139,9 @@ const PotholeReport = ({navigation}) => {
         <View>
           <View style={styles.labelContainer}>
             <Text style={styles.label}>위치</Text>
-            <TouchableOpacity style={styles.locationButton}>
+            <TouchableOpacity
+              style={styles.locationButton}
+              onPress={checkLocationPermission}>
               <LocationIcon
                 width={17}
                 height={17}
@@ -67,6 +154,7 @@ const PotholeReport = ({navigation}) => {
             style={[styles.textInput, styles.locationTextInput]}
             value={location}
             onChangeText={setLocation}
+            multiline
           />
         </View>
 
@@ -173,20 +261,20 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   photoSection: {
-    marginLeft: 10, // 신고 내용과 동일한 간격을 맞추기 위해 추가
+    marginLeft: 10,
     marginRight: 10,
-    marginTop: 20, // 신고 내용과 사진 첨부 사이 간격을 맞추기 위해 추가
+    marginTop: 20,
   },
   photoRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start', // 사진들이 동일한 간격으로 배치되도록 조정
+    justifyContent: 'flex-start',
     marginBottom: 20,
   },
   photoContainer: {
     position: 'relative',
-    width: 100, // 사진 크기에 맞춰 일정한 넓이 설정
-    height: 100, // 사진 크기에 맞춰 일정한 높이 설정
+    width: 100,
+    height: 100,
     marginRight: 10,
     marginBottom: 10,
   },
@@ -199,7 +287,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     backgroundColor: '#f0f0f0',
-    marginBottom: 10, // 추가된 박스가 기존 박스들과 동일한 간격을 유지하도록 설정
+    marginBottom: 10,
   },
   uploadedPhoto: {
     width: '100%',
