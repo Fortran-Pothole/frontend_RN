@@ -79,6 +79,8 @@ const PotholeReportDetail = () => {
     };
 
     dispatch(addReport(newReport));
+
+    navigation.pop(2);
     navigation.navigate('PotholeReportList');
   };
 
