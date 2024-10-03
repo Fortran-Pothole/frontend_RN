@@ -16,6 +16,7 @@ import ImageIcon from '../assets/icon _image_gallery.svg';
 import CancelIcon from '../assets/icon_cancel_img.svg';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {PERMISSIONS, request, check, RESULTS} from 'react-native-permissions';
+import {KAKAO_API_KEY} from '@env';
 
 const PotholeReport = ({navigation}) => {
   const [location, setLocation] = useState('');
@@ -100,11 +101,35 @@ const PotholeReport = ({navigation}) => {
     }
   };
 
+  const getKakaoAddress = async (latitude, longitude) => {
+    try {
+      const response = await fetch(
+        `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${longitude}&y=${latitude}`,
+        {
+          headers: {
+            Authorization: `KakaoAK ${KAKAO_API_KEY}`, // 환경 변수로부터 API 키 사용
+          },
+        },
+      );
+
+      const data = await response.json();
+      if (data.documents.length > 0) {
+        const address = data.documents[0].address.address_name;
+        setLocation(address); // 주소로 location을 설정
+      } else {
+        Alert.alert('주소를 찾을 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('Kakao API Error:', error);
+      Alert.alert('주소 변환 중 오류가 발생했습니다.');
+    }
+  };
+
   const handleGetCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
         const {latitude, longitude} = position.coords;
-        setLocation(`위도: ${latitude}, 경도: ${longitude}`);
+        getKakaoAddress(latitude, longitude); // 위도와 경도를 주소로 변환
       },
       error => {
         console.error(
