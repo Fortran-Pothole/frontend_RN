@@ -30,7 +30,7 @@ const PotholeReportDetail = () => {
     route.params?.description || '',
   );
   const [institution, setInstitution] = useState(
-    route.params?.institution || '',
+    route.params?.institution || '안전신문고',
   );
   const [contact, setContact] = useState(route.params?.contact || '');
   const [reportDate, setReportDate] = useState(
