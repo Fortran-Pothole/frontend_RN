@@ -12,6 +12,14 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {useDispatch} from 'react-redux';
 import {addReport} from '../slices/potholeSlice';
 
+const getFormattedDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`; // YYYY-MM-DD 형식
+};
+
 const PotholeReportDetail = () => {
   const route = useRoute();
   const navigation = useNavigation();
@@ -25,7 +33,9 @@ const PotholeReportDetail = () => {
     route.params?.institution || '',
   );
   const [contact, setContact] = useState(route.params?.contact || '');
-  const [reportDate, setReportDate] = useState(route.params?.reportDate || '');
+  const [reportDate, setReportDate] = useState(
+    route.params?.reportDate || getFormattedDate(),
+  );
   const [phoneNumberError, setPhoneNumberError] = useState('');
   const [photos, setPhotos] = useState(route.params?.photos || []); // PotholeReport에서 전달된 사진
 
