@@ -45,7 +45,7 @@ const PotholeReportDetail = () => {
     location.trim().length > 0 &&
     description.trim().length > 0 &&
     institution.trim().length > 0 &&
-    contact.trim().length === 11 &&
+    //contact.trim().length === 11 &&
     reportDate.trim().length > 0;
 
   const handleContactChange = text => {
@@ -63,10 +63,10 @@ const PotholeReportDetail = () => {
       return; // 읽기 전용 모드에서는 저장을 막음
     }
 
-    if (contact.length !== 11) {
-      setPhoneNumberError('전화번호를 정확히 입력해 주세요.');
-      return;
-    }
+    // if (contact.length !== 11) {
+    //   setPhoneNumberError('전화번호를 정확히 입력해 주세요.');
+    //   return;
+    // }
 
     const newReport = {
       id: Date.now(),
@@ -75,12 +75,16 @@ const PotholeReportDetail = () => {
       institution,
       contact,
       reportDate,
-      photos, // 사진 추가
+      photos,
     };
 
     dispatch(addReport(newReport));
 
-    navigation.pop(2);
+    // PotholeReport에서 넘어온 경우에만 pop(2) 실행
+    if (route.params?.fromReport) {
+      navigation.pop(2);
+    }
+
     navigation.navigate('PotholeReportList');
   };
 

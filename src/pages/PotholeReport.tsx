@@ -27,7 +27,12 @@ const PotholeReport = ({navigation}) => {
     location.trim().length > 0 && description.trim().length > 0;
 
   const handleNextPress = () => {
-    navigation.navigate('PotholeReportDetail', {location, description, photos});
+    navigation.navigate('PotholeReportDetail', {
+      location,
+      description,
+      photos,
+      fromReport: true,
+    });
   };
 
   const handlePhotoUpload = () => {
