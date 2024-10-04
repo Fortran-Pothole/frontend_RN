@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {useDispatch} from 'react-redux';
+import {setUserInfo} from '../slices/userSlice';
 import LoginSVG from '../assets/login_fortran.svg';
 
 function SignUp() {
@@ -19,6 +21,7 @@ function SignUp() {
   const [passwordError, setPasswordError] = useState('');
 
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const isNameValid = name.trim().length > 0;
   const isPhoneValid = /^\d{10,11}$/.test(phone);
@@ -76,6 +79,7 @@ function SignUp() {
 
   const handleSignUp = () => {
     if (canGoNext) {
+      dispatch(setUserInfo({name, phone}));
       Alert.alert('알림', '회원가입이 완료되었습니다!');
       navigation.navigate('SignIn'); // SignIn 화면으로 이동
     } else {

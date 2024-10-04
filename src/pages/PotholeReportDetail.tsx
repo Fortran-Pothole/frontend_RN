@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useDispatch} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {addReport} from '../slices/potholeSlice';
 
 const getFormattedDate = () => {
@@ -25,6 +26,9 @@ const PotholeReportDetail = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
+  // Redux에서 저장된 전화번호 가져오기
+  const phone = useSelector((state: any) => state.user.phone);
+
   const [location, setLocation] = useState(route.params?.location || '');
   const [description, setDescription] = useState(
     route.params?.description || '',
@@ -32,7 +36,8 @@ const PotholeReportDetail = () => {
   const [institution, setInstitution] = useState(
     route.params?.institution || '안전신문고',
   );
-  const [contact, setContact] = useState(route.params?.contact || '');
+  //const [contact, setContact] = useState(route.params?.phone || '');
+  const [contact, setContact] = useState(phone || '');
   const [reportDate, setReportDate] = useState(
     route.params?.reportDate || getFormattedDate(),
   );
