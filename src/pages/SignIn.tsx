@@ -11,19 +11,19 @@ import {useNavigation} from '@react-navigation/native';
 import LoginSVG from '../assets/login_fortran.svg';
 
 function SignIn({setLoggedIn}) {
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const [usernameError, setUsernameError] = useState('');
+  const [nameError, setNameError] = useState('');
 
   const navigation = useNavigation();
 
-  const isUsernameValid = username.trim().length > 0;
+  const isNameValid = name.trim().length > 0;
   const isPasswordValid = password.trim().length > 0;
-  const canLogin = isUsernameValid && isPasswordValid;
+  const canLogin = isNameValid && isPasswordValid;
 
-  const handleUsernameChange = text => {
-    setUsernameError('');
-    setUsername(text);
+  const handleNameChange = text => {
+    setNameError('');
+    setName(text);
   };
 
   const handleLogin = () => {
@@ -43,14 +43,12 @@ function SignIn({setLoggedIn}) {
 
       <View style={styles.inputWrapper}>
         <TextInput
-          style={styles.usernameInput}
+          style={styles.nameInput}
           placeholder="아이디"
-          value={username}
-          onChangeText={handleUsernameChange}
+          value={name}
+          onChangeText={handleNameChange}
         />
-        {usernameError ? (
-          <Text style={styles.errorText}>{usernameError}</Text>
-        ) : null}
+        {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
       </View>
 
       <View style={styles.inputWrapper}>
@@ -93,7 +91,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     marginBottom: 35,
   },
-  usernameInput: {
+  nameInput: {
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 25,

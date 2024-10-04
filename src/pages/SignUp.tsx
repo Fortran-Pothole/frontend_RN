@@ -11,20 +11,22 @@ import {useNavigation} from '@react-navigation/native';
 import LoginSVG from '../assets/login_fortran.svg';
 
 function SignUp() {
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [usernameVerified, setUsernameVerified] = useState(false);
-  const [usernameError, setUsernameError] = useState('');
+  const [nameError, setNameError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
   const navigation = useNavigation();
 
-  const isUsernameValid = username.trim().length > 0;
+  const isNameValid = name.trim().length > 0;
+  const isPhoneValid = /^\d{10,11}$/.test(phone);
   const isPasswordValid = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(
     password,
   );
 
-  const canGoNext = usernameVerified && isPasswordValid;
+  const canGoNext = isNameValid && isPhoneValid && isPasswordValid;
 
   const handleTextChange = (
     text,
@@ -41,14 +43,24 @@ function SignUp() {
     }
   };
 
-  const handleUsernameChange = text => {
-    setUsernameVerified(false);
+  const handleNameChange = text => {
     handleTextChange(
       text,
-      setUsername,
-      setUsernameError,
+      setName,
+      setNameError,
       '아이디를 정확히 입력해 주세요.',
     );
+  };
+
+  const handlePhoneChange = text => {
+    setPhone(text);
+
+    const phoneRegex = /^\d{10,11}$/;
+    if (!phoneRegex.test(text)) {
+      setPhoneError('전화번호는 11자리 숫자로 입력해 주세요.');
+    } else {
+      setPhoneError('');
+    }
   };
 
   const handlePasswordChange = text => {
@@ -59,32 +71,6 @@ function SignUp() {
       setPasswordError('영문자와 숫자를 포함한 8자리 이상이어야 합니다.');
     } else {
       setPasswordError('사용 가능한 비밀번호입니다.');
-    }
-  };
-
-  const handleUsernameCheck = async () => {
-    if (!username) {
-      setUsernameError('아이디를 입력해 주세요.');
-      return;
-    }
-
-    try {
-      const existingUsernames = [
-        'existingUser1',
-        'existingUser2',
-        'existingUser3',
-      ];
-
-      if (existingUsernames.includes(username)) {
-        setUsernameError('이미 다른 사용자가 사용 중 입니다.');
-        setUsernameVerified(false);
-      } else {
-        setUsernameError('사용 가능한 아이디입니다.');
-        setUsernameVerified(true);
-      }
-    } catch (error) {
-      console.error('Username check failed', error);
-      setUsernameError('아이디 확인 중 오류가 발생했습니다.');
     }
   };
 
@@ -106,30 +92,26 @@ function SignUp() {
       <View style={styles.inputWrapper}>
         <View style={styles.inputRow}>
           <TextInput
-            style={styles.usernameInput}
+            style={styles.nameInput}
             placeholder="아이디"
-            value={username}
-            onChangeText={handleUsernameChange}
+            value={name}
+            onChangeText={handleNameChange}
           />
-          <TouchableOpacity
-            style={[
-              styles.button,
-              {backgroundColor: isUsernameValid ? '#003366' : '#727783'},
-            ]}
-            onPress={handleUsernameCheck}
-            disabled={!isUsernameValid}>
-            <Text style={styles.buttonText}>확인</Text>
-          </TouchableOpacity>
         </View>
-        {usernameError ? (
-          <Text
-            style={[
-              styles.errorText,
-              usernameError === '사용 가능한 아이디입니다.' && {color: 'green'},
-            ]}>
-            {usernameError}
-          </Text>
-        ) : null}
+        {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
+      </View>
+
+      <View style={styles.inputWrapper}>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.phoneInput}
+            placeholder="전화번호"
+            value={phone}
+            keyboardType="numeric"
+            onChangeText={handlePhoneChange}
+          />
+        </View>
+        {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
       </View>
 
       <View style={styles.inputWrapper}>
@@ -186,35 +168,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  usernameInput: {
-    flex: 0.8,
+  nameInput: {
+    flex: 0.85,
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 25,
     padding: 12,
-    marginLeft: 20,
-    marginRight: 15,
+    marginLeft: 40,
+  },
+  phoneInput: {
+    flex: 0.85,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 25,
+    padding: 12,
+    marginLeft: 40,
   },
   passwordInput: {
-    flex: 0.75,
+    flex: 0.85,
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 25,
     padding: 12,
-    marginLeft: 20,
-    marginRight: 15,
-  },
-  button: {
-    flex: 0.17,
-    padding: 12,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    marginLeft: 40,
   },
   signUpButton: {
     padding: 16,
