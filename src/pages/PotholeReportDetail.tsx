@@ -55,8 +55,6 @@ const PotholeReportDetail = () => {
   const [phoneNumberError, setPhoneNumberError] = useState('');
   const [photos, setPhotos] = useState(route.params?.photos || []); // PotholeReport에서 전달된 사진
 
-  const readOnly = route.params?.readOnly || false;
-
   const isSubmitButtonEnabled =
     location.trim().length > 0 &&
     description.trim().length > 0 &&
