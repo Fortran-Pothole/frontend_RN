@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import axios from 'axios';
 import {
   Alert,
   Text,
@@ -26,10 +27,23 @@ function SignIn({setLoggedIn}) {
     setName(text);
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (canLogin) {
-      Alert.alert('알림', '로그인에 성공했습니다!');
-      setLoggedIn(true); // 로그인 상태를 true로 설정하여 LoggedInStack으로 전환
+      try {
+        const response = await axios.post('http://15.164.23.163/user/login', {
+          name: name,
+          password: password,
+        });
+
+        if (response.status === 200) {
+          Alert.alert('알림', '로그인에 성공했습니다!');
+          setLoggedIn(true); // 로그인 상태를 true로 설정하여 LoggedInStack으로 전환
+        } else {
+          Alert.alert('오류', '로그인에 실패했습니다.');
+        }
+      } catch (error) {
+        Alert.alert('오류', '서버와의 연결에 실패했습니다.');
+      }
     } else {
       Alert.alert('알림', '아이디와 비밀번호를 확인해 주세요.');
     }
