@@ -7,21 +7,14 @@ import {fetchAutoReports} from '../slices/autoPotholeSlice'; // 리덕스 액션
 //자동 신고를 처리하는 컴포넌트
 const NoticePotholeList = () => {
   const autoReports = useSelector(state => state.autoPothole.autoReports);
+  const status = useSelector(state => state.autoPothole.status);
+  const error = useSelector(state => state.autoPothole.error);
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
   useEffect(() => {
-    // 여기에 자동 신고 조회 API 호출
-    // const fetchAutoReports = async () => {
-    //   try {
-    //     const response = await fetch('자동신고 API URL');
-    //     const data = await response.json();
-    //     setAutoReports(data);
-    //   } catch (error) {
-    //     console.error('자동 신고 목록을 가져오는 중 오류 발생:', error);
-    //   }
-    // };
-    // fetchAutoReports();
+    // 자동 신고 목록을 가져오기 위한 Thunk 액션 호출
+    dispatch(fetchAutoReports());
   }, [dispatch]);
 
   const handleItemPress = item => {
@@ -31,12 +24,31 @@ const NoticePotholeList = () => {
   const renderItem = ({item}) => (
     <TouchableOpacity onPress={() => handleItemPress(item)}>
       <View style={styles.itemContainer}>
-        <Text style={styles.itemText}>위치: {item.location}</Text>
-        <Text style={styles.itemText}>내용: {item.description}</Text>
-        <Text style={styles.itemText}>신고 일자: {item.reportDate}</Text>
+        <Text style={styles.itemText}>
+          위치: {item.lat}, {item.lng}
+        </Text>
+        <Text style={styles.itemText}>
+          신고 일자: {item.created_at.split('T')[0]}
+        </Text>
       </View>
     </TouchableOpacity>
   );
+
+  if (status === 'loading') {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>자동 신고 목록을 불러오는 중...</Text>
+      </View>
+    );
+  }
+
+  if (status === 'failed') {
+    return (
+      <View style={styles.errorContainer}>
+        <Text>오류: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <FlatList
@@ -59,6 +71,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   itemText: {fontSize: 16, marginBottom: 5, color: '#000'},
+  loadingContainer: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {padding: 20, justifyContent: 'center', alignItems: 'center'},
 });
 
 export default NoticePotholeList;
