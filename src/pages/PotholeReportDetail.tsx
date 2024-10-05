@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useDispatch} from 'react-redux';
 import {useSelector} from 'react-redux';
-import {addManualReport} from '../slices/manualPotholeSlice';
+import {fetchManualReportById} from '../slices/manualPotholeSlice';
 
 const getFormattedDate = () => {
   const today = new Date();
@@ -25,6 +25,16 @@ const PotholeReportDetail = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const {report_id, readOnly} = route.params;
+  const report = useSelector(state =>
+    state.manualPothole.manualReports.find(r => r.id === report_id),
+  );
+
+  useEffect(() => {
+    if (report_id && !report) {
+      dispatch(fetchManualReportById(report_id));
+    }
+  }, [dispatch, report_id, report]);
 
   // Redux에서 저장된 전화번호 가져오기
   const phone = useSelector((state: any) => state.user.phone);
@@ -50,7 +60,7 @@ const PotholeReportDetail = () => {
     location.trim().length > 0 &&
     description.trim().length > 0 &&
     institution.trim().length > 0 &&
-    //contact.trim().length === 11 &&
+    contact.trim().length === 11 &&
     reportDate.trim().length > 0;
 
   const handleContactChange = text => {
@@ -63,35 +73,29 @@ const PotholeReportDetail = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (readOnly) {
       return; // 읽기 전용 모드에서는 저장을 막음
     }
 
-    // if (contact.length !== 11) {
-    //   setPhoneNumberError('전화번호를 정확히 입력해 주세요.');
-    //   return;
-    // }
-
     const newReport = {
-      id: Date.now(),
       location,
-      description,
-      institution,
-      contact,
-      reportDate,
-      photos,
+      content: description,
+      images: photos.join(','),
+      user_id: 1, // 사용자 ID는 실제 로그인한 사용자 ID로 설정 (여기서는 예시로 1 사용)
     };
 
-    console.log(newReport);
-    dispatch(addManualReport(newReport));
+    try {
+      await dispatch(postManualReport(newReport)).unwrap();
+      console.log('신고 성공');
 
-    // PotholeReport에서 넘어온 경우에만 pop(2) 실행
-    if (route.params?.fromReport) {
-      navigation.pop(2);
+      if (route.params?.fromReport) {
+        navigation.pop(2);
+      }
+      navigation.navigate('PotholeReportTabs');
+    } catch (error) {
+      console.error('신고 실패:', error);
     }
-
-    navigation.navigate('PotholeReportTabs');
   };
 
   return (

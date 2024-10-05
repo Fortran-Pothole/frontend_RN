@@ -1,29 +1,27 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 
 //수동 신고를 처리하는 컴포넌트
 const ReportPotholeList = () => {
   const manualReports = useSelector(state => state.manualPothole.manualReports);
+  const status = useSelector(state => state.manualPothole.status);
+  const error = useSelector(state => state.manualPothole.error);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    // 여기에 수동 신고 조회 API 호출
-    // const fetchManualReports = async () => {
-    //   try {
-    //     const response = await fetch('수동신고 API URL');
-    //     const data = await response.json();
-    //     setManualReports(data);
-    //   } catch (error) {
-    //     console.error('수동 신고 목록을 가져오는 중 오류 발생:', error);
-    //   }
-    // };
-    // fetchManualReports();
-  }, []);
+    if (status === 'idle') {
+      dispatch(fetchManualReports()); // Thunk 액션으로 신고 목록을 가져옴
+    }
+  }, [dispatch, status]);
 
   const handleItemPress = item => {
-    navigation.navigate('PotholeReportDetail', {...item, readOnly: true});
+    navigation.navigate('PotholeReportDetail', {
+      report_id: item.id,
+      readOnly: true,
+    });
   };
 
   const renderItem = ({item}) => (
@@ -35,6 +33,22 @@ const ReportPotholeList = () => {
       </View>
     </TouchableOpacity>
   );
+
+  if (status === 'loading') {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>신고 목록을 불러오는 중...</Text>
+      </View>
+    );
+  }
+
+  if (status === 'failed') {
+    return (
+      <View style={styles.errorContainer}>
+        <Text>오류: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <FlatList
@@ -57,6 +71,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   itemText: {fontSize: 16, marginBottom: 5, color: '#000'},
+  loadingContainer: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {padding: 20, justifyContent: 'center', alignItems: 'center'},
 });
 
 export default ReportPotholeList;
