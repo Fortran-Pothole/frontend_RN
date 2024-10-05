@@ -9,8 +9,7 @@ import {
   Image,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {useDispatch} from 'react-redux';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {fetchManualReportById} from '../slices/manualPotholeSlice';
 
 const getFormattedDate = () => {
@@ -26,6 +25,8 @@ const PotholeReportDetail = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const {report_id, readOnly} = route.params;
+
+  const user = useSelector(state => state.user);
   const report = useSelector(state =>
     state.manualPothole.manualReports.find(r => r.id === report_id),
   );
@@ -47,7 +48,7 @@ const PotholeReportDetail = () => {
     route.params?.institution || '안전신문고',
   );
   //const [contact, setContact] = useState(route.params?.phone || '');
-  const [contact, setContact] = useState(phone || '');
+  const [contact, setContact] = useState(user.phone || '');
   const [reportDate, setReportDate] = useState(
     route.params?.reportDate || getFormattedDate(),
   );
@@ -82,7 +83,7 @@ const PotholeReportDetail = () => {
       location,
       content: description,
       images: photos.join(','),
-      user_id: 1, // 사용자 ID는 실제 로그인한 사용자 ID로 설정 (여기서는 예시로 1 사용)
+      user_id: user.id,
     };
 
     try {
