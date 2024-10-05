@@ -77,11 +77,32 @@ function SignUp() {
     }
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (canGoNext) {
-      dispatch(setUserInfo({name, phone}));
-      Alert.alert('알림', '회원가입이 완료되었습니다!');
-      navigation.navigate('SignIn'); // SignIn 화면으로 이동
+      try {
+        const response = await fetch('http://15.164.23.163/user/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: name,
+            phone: phone,
+            password: password,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          dispatch(setUserInfo({name: data.name, phone: data.phone}));
+          Alert.alert('알림', '회원가입이 완료되었습니다!');
+          navigation.navigate('SignIn');
+        } else {
+          Alert.alert('오류', '회원가입에 실패했습니다.');
+        }
+      } catch (error) {
+        Alert.alert('오류', '서버와의 연결에 실패했습니다.');
+      }
     } else {
       Alert.alert('알림', '모든 확인 절차를 완료해 주세요.');
     }
