@@ -46,7 +46,9 @@ export const postManualReport = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(
+        error.response?.data || '신고 생성에 실패했습니다.',
+      );
     }
   },
 );

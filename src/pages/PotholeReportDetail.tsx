@@ -10,7 +10,10 @@ import {
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
-import {fetchManualReportById} from '../slices/manualPotholeSlice';
+import {
+  fetchManualReportById,
+  postManualReport,
+} from '../slices/manualPotholeSlice';
 
 const getFormattedDate = () => {
   const today = new Date();
