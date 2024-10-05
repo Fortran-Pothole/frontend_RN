@@ -1,17 +1,29 @@
-import React from 'react';
-import {useSelector} from 'react-redux';
+import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
 
-const PotholeReportList = () => {
-  const reports = useSelector(state => state.pothole.reports);
+//수동 신고를 처리하는 컴포넌트
+const ReportPotholeList = () => {
+  const manualReports = useSelector(state => state.manualPothole.manualReports);
   const navigation = useNavigation();
 
+  useEffect(() => {
+    // 여기에 수동 신고 조회 API 호출
+    // const fetchManualReports = async () => {
+    //   try {
+    //     const response = await fetch('수동신고 API URL');
+    //     const data = await response.json();
+    //     setManualReports(data);
+    //   } catch (error) {
+    //     console.error('수동 신고 목록을 가져오는 중 오류 발생:', error);
+    //   }
+    // };
+    // fetchManualReports();
+  }, []);
+
   const handleItemPress = item => {
-    navigation.navigate('PotholeReportDetail', {
-      ...item,
-      readOnly: true, // 읽기 전용 모드로 설정
-    });
+    navigation.navigate('PotholeReportDetail', {...item, readOnly: true});
   };
 
   const renderItem = ({item}) => (
@@ -26,7 +38,7 @@ const PotholeReportList = () => {
 
   return (
     <FlatList
-      data={reports}
+      data={manualReports}
       renderItem={renderItem}
       keyExtractor={item => item.id.toString()}
       contentContainerStyle={styles.listContainer}
@@ -35,9 +47,7 @@ const PotholeReportList = () => {
 };
 
 const styles = StyleSheet.create({
-  listContainer: {
-    padding: 20,
-  },
+  listContainer: {padding: 20},
   itemContainer: {
     backgroundColor: '#f9f9f9',
     padding: 15,
@@ -46,11 +56,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderWidth: 1,
   },
-  itemText: {
-    fontSize: 16,
-    marginBottom: 5,
-    color: '#000',
-  },
+  itemText: {fontSize: 16, marginBottom: 5, color: '#000'},
 });
 
-export default PotholeReportList;
+export default ReportPotholeList;

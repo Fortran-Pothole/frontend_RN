@@ -11,7 +11,7 @@ import {
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useDispatch} from 'react-redux';
 import {useSelector} from 'react-redux';
-import {addReport} from '../slices/potholeSlice';
+import {addManualReport} from '../slices/manualPotholeSlice';
 
 const getFormattedDate = () => {
   const today = new Date();
@@ -83,14 +83,15 @@ const PotholeReportDetail = () => {
       photos,
     };
 
-    dispatch(addReport(newReport));
+    console.log(newReport);
+    dispatch(addManualReport(newReport));
 
     // PotholeReport에서 넘어온 경우에만 pop(2) 실행
     if (route.params?.fromReport) {
       navigation.pop(2);
     }
 
-    navigation.navigate('PotholeReportList');
+    navigation.navigate('PotholeReportTabs');
   };
 
   return (

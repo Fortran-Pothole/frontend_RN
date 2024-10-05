@@ -4,7 +4,7 @@ import Voice from 'react-native-voice';
 import LinearGradient from 'react-native-linear-gradient';
 import Tts from 'react-native-tts';
 import {useDispatch} from 'react-redux';
-import {addReport} from '../slices/potholeSlice';
+import {addAutoReport} from '../slices/autoPotholeSlice';
 import PotholeModel from '../data/models/PotholeModel';
 
 function VoiceNotice({startRecognition, currentLocation, onClose}) {
@@ -48,7 +48,7 @@ function VoiceNotice({startRecognition, currentLocation, onClose}) {
         reportDate: getFormattedDate(),
       };
 
-      dispatch(addReport(newReport)); // Redux 액션을 사용
+      dispatch(addAutoReport(newReport)); // Redux 액션을 사용
 
       await PotholeModel.reportPothole(
         currentLocation.latitude,
