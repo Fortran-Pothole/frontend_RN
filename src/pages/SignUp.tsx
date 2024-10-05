@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import axios from 'axios';
 import {
   Alert,
   Text,
@@ -9,8 +8,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {useDispatch} from 'react-redux';
-import {setUserInfo} from '../slices/userSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {signUpUser} from '../slices/userSlice';
 import LoginSVG from '../assets/login_fortran.svg';
 
 function SignUp() {
@@ -20,6 +19,7 @@ function SignUp() {
   const [nameError, setNameError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const {status, error} = useSelector(state => state.user);
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -79,24 +79,13 @@ function SignUp() {
   };
 
   const handleSignUp = async () => {
-    if (canGoNext) {
-      try {
-        const response = await axios.post('http://15.164.23.163/user/signup', {
-          name: name,
-          phone: phone,
-          password: password,
-        });
-
-        if (response.status === 200) {
-          const data = response.data;
-          dispatch(setUserInfo({name: data.name, phone: data.phone}));
-          Alert.alert('알림', '회원가입이 완료되었습니다!');
-          navigation.navigate('SignIn');
-        } else {
-          Alert.alert('오류', '회원가입에 실패했습니다.');
-        }
-      } catch (error) {
-        Alert.alert('오류', '서버와의 연결에 실패했습니다.');
+    if (canSignUp) {
+      const result = await dispatch(
+        signUpUser({name, phone, password}),
+      ).unwrap();
+      if (result) {
+        Alert.alert('알림', '회원가입에 성공했습니다!');
+        navigation.navigate('SignIn');
       }
     } else {
       Alert.alert('알림', '모든 확인 절차를 완료해 주세요.');

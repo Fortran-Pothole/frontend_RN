@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import axios from 'axios';
 import {
   Alert,
   Text,
@@ -9,13 +8,17 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {loginUser} from '../slices/userSlice';
 import LoginSVG from '../assets/login_fortran.svg';
 
 function SignIn({setLoggedIn}) {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const {status, error} = useSelector(state => state.user);
   const [nameError, setNameError] = useState('');
 
+  const dispatch = useDispatch();
   const navigation = useNavigation();
 
   const isNameValid = name.trim().length > 0;
@@ -29,20 +32,10 @@ function SignIn({setLoggedIn}) {
 
   const handleLogin = async () => {
     if (canLogin) {
-      try {
-        const response = await axios.post('http://15.164.23.163/user/login', {
-          name: name,
-          password: password,
-        });
-
-        if (response.status === 200) {
-          Alert.alert('알림', '로그인에 성공했습니다!');
-          setLoggedIn(true); // 로그인 상태를 true로 설정하여 LoggedInStack으로 전환
-        } else {
-          Alert.alert('오류', '로그인에 실패했습니다.');
-        }
-      } catch (error) {
-        Alert.alert('오류', '서버와의 연결에 실패했습니다.');
+      const result = await dispatch(loginUser({name, password})).unwrap();
+      if (result) {
+        Alert.alert('알림', '로그인에 성공했습니다!');
+        setLoggedIn(true);
       }
     } else {
       Alert.alert('알림', '아이디와 비밀번호를 확인해 주세요.');
