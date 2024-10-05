@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux'; // 리덕스 관련 추가
-import {addAutoReport} from '../slices/autoPotholeSlice'; // 리덕스 액션 가져오기
+import {fetchAutoReports} from '../slices/autoPotholeSlice'; // 리덕스 액션 가져오기
 
 //자동 신고를 처리하는 컴포넌트
 const NoticePotholeList = () => {
