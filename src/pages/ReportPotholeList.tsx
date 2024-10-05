@@ -25,15 +25,19 @@ const ReportPotholeList = () => {
     });
   };
 
-  const renderItem = ({item}) => (
-    <TouchableOpacity onPress={() => handleItemPress(item)}>
-      <View style={styles.itemContainer}>
-        <Text style={styles.itemText}>위치: {item.location}</Text>
-        <Text style={styles.itemText}>내용: {item.description}</Text>
-        <Text style={styles.itemText}>신고 일자: {item.reportDate}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderItem = ({item}) => {
+    const formattedDate = new Date(item.created_at).toISOString().split('T')[0];
+
+    return (
+      <TouchableOpacity onPress={() => handleItemPress(item)}>
+        <View style={styles.itemContainer}>
+          <Text style={styles.itemText}>위치: {item.location}</Text>
+          <Text style={styles.itemText}>내용: {item.content}</Text>
+          <Text style={styles.itemText}>신고 일자: {formattedDate}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (status === 'loading') {
     return (

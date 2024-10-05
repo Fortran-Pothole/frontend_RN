@@ -50,7 +50,6 @@ const PotholeReportDetail = () => {
   const [institution, setInstitution] = useState(
     route.params?.institution || '안전신문고',
   );
-  //const [contact, setContact] = useState(route.params?.phone || '');
   const [contact, setContact] = useState(user.phone || '');
   const [reportDate, setReportDate] = useState(
     route.params?.reportDate || getFormattedDate(),
@@ -64,6 +63,21 @@ const PotholeReportDetail = () => {
     institution.trim().length > 0 &&
     contact.trim().length === 11 &&
     reportDate.trim().length > 0;
+
+  // 신고 데이터를 불러오고 상태에 반영하는 useEffect
+  useEffect(() => {
+    // 해당 신고 ID에 맞는 신고 데이터를 서버에서 가져오고, 필드에 반영
+    if (report_id && !report) {
+      dispatch(fetchManualReportById(report_id));
+    }
+
+    if (report) {
+      setLocation(report.location);
+      setDescription(report.content);
+      setReportDate(report.created_at.split('T')[0]);
+      setPhotos(report.images ? report.images.split(',') : []);
+    }
+  }, [dispatch, report_id, report]);
 
   const handleContactChange = text => {
     const cleanedText = text.replace(/[^0-9]/g, ''); // 숫자만 허용
@@ -81,8 +95,8 @@ const PotholeReportDetail = () => {
     }
 
     const newReport = {
-      location,
-      content: description,
+      location: location.trim(),
+      content: description.trim(),
       images: photos.join(','),
       user_id: user.id,
     };

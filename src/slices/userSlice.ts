@@ -43,6 +43,7 @@ export const signUpUser = createAsyncThunk(
 );
 
 interface UserState {
+  id: string | null;
   phone: string;
   name: string;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -50,6 +51,7 @@ interface UserState {
 }
 
 const initialState: UserState = {
+  id: null,
   phone: '',
   name: '',
   status: 'idle',
@@ -62,19 +64,20 @@ const userSlice = createSlice({
   reducers: {
     setUserInfo: (
       state,
-      action: PayloadAction<{name: string; phone: string}>,
+      action: PayloadAction<{id: string; name: string; phone: string}>, // id 추가
     ) => {
+      state.id = action.payload.id; // ID 저장
       state.phone = action.payload.phone;
       state.name = action.payload.name;
     },
     clearUserInfo: state => {
+      state.id = null; // 로그아웃 시 ID를 null로
       state.phone = '';
       state.name = '';
       state.status = 'idle';
       state.error = null;
     },
   },
-
   extraReducers: builder => {
     // 로그인 처리
     builder.addCase(loginUser.pending, state => {
@@ -82,6 +85,7 @@ const userSlice = createSlice({
     });
     builder.addCase(loginUser.fulfilled, (state, action) => {
       state.status = 'succeeded';
+      state.id = action.payload.id; // 로그인 성공 시 ID 저장
       state.phone = action.payload.phone;
       state.name = action.payload.name;
     });
@@ -96,6 +100,7 @@ const userSlice = createSlice({
     });
     builder.addCase(signUpUser.fulfilled, (state, action) => {
       state.status = 'succeeded';
+      state.id = action.payload.id; // 회원가입 성공 시 ID 저장
       state.phone = action.payload.phone;
       state.name = action.payload.name;
     });
