@@ -14,6 +14,7 @@ import {
   fetchManualReportById,
   postManualReport,
 } from '../slices/manualPotholeSlice';
+import {fetchAutoReportById} from '../slices/autoPotholeSlice';
 
 const getFormattedDate = () => {
   const today = new Date();
@@ -27,18 +28,17 @@ const PotholeReportDetail = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const {report_id, readOnly} = route.params;
+  const {report_id, readOnly, reportType} = route.params;
+
+  // 수동 신고일 경우 수동 신고 데이터를 불러오고, 자동 신고일 경우 자동 신고 데이터를 불러옴
+  const report =
+    reportType === 'manual'
+      ? useSelector(state =>
+          state.manualPothole.manualReports.find(r => r.id === report_id),
+        )
+      : useSelector(state => state.autoPothole.selectedAutoReport);
 
   const user = useSelector(state => state.user);
-  const report = useSelector(state =>
-    state.manualPothole.manualReports.find(r => r.id === report_id),
-  );
-
-  useEffect(() => {
-    if (report_id && !report) {
-      dispatch(fetchManualReportById(report_id));
-    }
-  }, [dispatch, report_id, report]);
 
   // Redux에서 저장된 전화번호 가져오기
   const phone = useSelector((state: any) => state.user.phone);
@@ -64,20 +64,30 @@ const PotholeReportDetail = () => {
     contact.trim().length === 11 &&
     reportDate.trim().length > 0;
 
+  useEffect(() => {
+    // 수동 신고일 경우
+    if (reportType === 'manual' && report_id && !report) {
+      dispatch(fetchManualReportById(report_id)); // 수동 신고 데이터 가져오기
+    } else if (reportType === 'auto' && report_id && !report) {
+      dispatch(fetchAutoReportById(report_id)); // 자동 신고 데이터 가져오기
+    }
+  }, [dispatch, report_id, report, reportType]);
+
   // 신고 데이터를 불러오고 상태에 반영하는 useEffect
   useEffect(() => {
-    // 해당 신고 ID에 맞는 신고 데이터를 서버에서 가져오고, 필드에 반영
-    if (report_id && !report) {
-      dispatch(fetchManualReportById(report_id));
-    }
-
     if (report) {
-      setLocation(report.location);
-      setDescription(report.content);
-      setReportDate(report.created_at.split('T')[0]);
-      setPhotos(report.images ? report.images.split(',') : []);
+      if (reportType === 'manual') {
+        setLocation(report.location);
+        setDescription(report.content);
+        setReportDate(report.created_at.split('T')[0]);
+        setPhotos(report.images ? report.images.split(',') : []);
+      } else if (reportType === 'auto') {
+        setLocation(`${report.lat}, ${report.lng}`);
+        setReportDate(report.created_at.split('T')[0]);
+        setPhotos(report.image ? [report.image] : []);
+      }
     }
-  }, [dispatch, report_id, report]);
+  }, [report, reportType]);
 
   const handleContactChange = text => {
     const cleanedText = text.replace(/[^0-9]/g, ''); // 숫자만 허용

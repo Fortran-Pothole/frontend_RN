@@ -75,7 +75,7 @@ const autoPotholeSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      / 특정 자동 신고 가져오기 로직 추가
+      // 특정 자동 신고 가져오기 로직 추가
       .addCase(fetchAutoReportById.pending, state => {
         state.status = 'loading';
       })

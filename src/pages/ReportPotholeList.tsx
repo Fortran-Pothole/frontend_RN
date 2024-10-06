@@ -22,6 +22,7 @@ const ReportPotholeList = () => {
     navigation.navigate('PotholeReportDetail', {
       report_id: item.id,
       readOnly: true,
+      reportType: 'manual',
     });
   };
 
