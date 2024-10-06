@@ -137,16 +137,21 @@ const PotholeReportDetail = () => {
           color="#000" // 텍스트 색상 검정으로 설정
         />
 
-        <Text style={styles.label}>신고 내용</Text>
-        <TextInput
-          style={styles.textArea}
-          value={description}
-          onChangeText={setDescription}
-          editable={!readOnly}
-          selectTextOnFocus={!readOnly}
-          multiline
-          color="#000" // 텍스트 색상 검정으로 설정
-        />
+        {/* 수동 신고일 경우에만 신고 내용 입력란 표시 */}
+        {reportType !== 'auto' && (
+          <>
+            <Text style={styles.label}>신고 내용</Text>
+            <TextInput
+              style={styles.textArea}
+              value={description}
+              onChangeText={setDescription}
+              editable={!readOnly}
+              selectTextOnFocus={!readOnly}
+              multiline
+              color="#000" // 텍스트 색상 검정으로 설정
+            />
+          </>
+        )}
 
         <Text style={styles.label}>접수 기관</Text>
         <TextInput
