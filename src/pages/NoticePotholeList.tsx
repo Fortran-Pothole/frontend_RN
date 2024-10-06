@@ -2,7 +2,10 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux'; // 리덕스 관련 추가
-import {fetchAutoReports} from '../slices/autoPotholeSlice'; // 리덕스 액션 가져오기
+import {
+  fetchAutoReports,
+  fetchAutoReportById,
+} from '../slices/autoPotholeSlice'; // 리덕스 액션 가져오기
 
 //자동 신고를 처리하는 컴포넌트
 const NoticePotholeList = () => {
@@ -18,7 +21,12 @@ const NoticePotholeList = () => {
   }, [dispatch]);
 
   const handleItemPress = item => {
-    navigation.navigate('PotholeReportDetail', {...item, readOnly: true});
+    dispatch(fetchAutoReportById(item.id)); // 클릭한 항목의 ID로 자동 신고 데이터를 가져옴
+    navigation.navigate('PotholeReportDetail', {
+      ...item,
+      readOnly: true,
+      reportType: 'auto',
+    });
   };
 
   const renderItem = ({item}) => (
