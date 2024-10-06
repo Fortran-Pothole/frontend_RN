@@ -137,7 +137,6 @@ const PotholeReportDetail = () => {
           color="#000" // 텍스트 색상 검정으로 설정
         />
 
-        {/* 수동 신고일 경우에만 신고 내용 입력란 표시 */}
         {reportType !== 'auto' && (
           <>
             <Text style={styles.label}>신고 내용</Text>
