@@ -6,7 +6,7 @@ export const fetchAutoReports = createAsyncThunk(
   'autoPothole/fetchAutoReports',
   async (_, {rejectWithValue}) => {
     try {
-      const response = await axios.get('http://15.164.23.163/pothole/');
+      const response = await axios.get(`${process.env.BASE_URL}/pothole/`);
       return response.data; // 성공 시 서버에서 반환한 데이터를 리턴
     } catch (error) {
       return rejectWithValue(
@@ -22,7 +22,7 @@ export const fetchAutoReportById = createAsyncThunk(
   async (pothole_id, {rejectWithValue}) => {
     try {
       const response = await axios.get(
-        `http://15.164.23.163/pothole/${pothole_id}`,
+        `${process.env.BASE_URL}/pothole/${pothole_id}`,
       );
       return response.data; // 성공 시 서버에서 반환한 데이터를 리턴
     } catch (error) {

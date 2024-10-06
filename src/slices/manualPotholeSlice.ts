@@ -8,7 +8,7 @@ export const fetchManualReports = createAsyncThunk(
   'manualPothole/fetchManualReports',
   async (_, {rejectWithValue}) => {
     try {
-      const response = await axios.get('http://15.164.23.163/report');
+      const response = await axios.get(`${process.env.BASE_URL}/report`);
       return response.data; // 성공 시 서버에서 반환한 데이터를 리턴
     } catch (error) {
       return rejectWithValue(
@@ -24,7 +24,7 @@ export const fetchManualReportById = createAsyncThunk(
   async (report_id, {rejectWithValue}) => {
     try {
       const response = await axios.get(
-        `http://15.164.23.163/report/${report_id}`,
+        `${process.env.BASE_URL}/report/${report_id}`,
       );
       return response.data; // 성공 시 서버에서 반환한 데이터를 리턴
     } catch (error) {
@@ -41,7 +41,7 @@ export const postManualReport = createAsyncThunk(
   async (newReport, {rejectWithValue}) => {
     try {
       const response = await axios.post(
-        'http://15.164.23.163/report',
+        `${process.env.BASE_URL}/report`,
         newReport,
       );
       return response.data;

@@ -9,7 +9,7 @@ export const loginUser = createAsyncThunk(
     {rejectWithValue},
   ) => {
     try {
-      const response = await axios.post('http://15.164.23.163/user/login', {
+      const response = await axios.post(`${process.env.BASE_URL}/user/login`', {
         name,
         password,
       });
@@ -28,7 +28,7 @@ export const signUpUser = createAsyncThunk(
     {rejectWithValue},
   ) => {
     try {
-      const response = await axios.post('http://15.164.23.163/user/signup', {
+      const response = await axios.post(`${process.env.BASE_URL}/user/signup`, {
         name,
         phone,
         password,
