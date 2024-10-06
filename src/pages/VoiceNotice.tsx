@@ -4,7 +4,7 @@ import Voice from 'react-native-voice';
 import LinearGradient from 'react-native-linear-gradient';
 import Tts from 'react-native-tts';
 import {useDispatch} from 'react-redux';
-import {postAutoReport} from '../slices/autoPotholeSlice';
+import {addAutoReport} from '../slices/autoPotholeSlice';
 import PotholeModel from '../data/models/PotholeModel';
 
 function VoiceNotice({startRecognition, currentLocation, onClose}) {
@@ -38,29 +38,23 @@ function VoiceNotice({startRecognition, currentLocation, onClose}) {
 
     if (speechResult.includes('신고')) {
       Tts.speak('이 위치로 포트홀을 신고할게요');
-      // Redux 및 백엔드로 데이터 저장
+
+      // Redux 데이터 저장
       const newReport = {
-        lat: currentLocation.latitude.toString(),
-        lng: currentLocation.longitude.toString(),
-        image: '', // 이미지는 따로 처리할 수 있습니다 (예시로 빈 값 사용)
-        done: -1,
+        id: Date.now(),
+        location: `위도: ${currentLocation.latitude}, 경도: ${currentLocation.longitude}`,
+        description: speechResult,
+        reportDate: getFormattedDate(),
       };
 
-      try {
-        // postAutoReport 호출하여 백엔드에 신고 전송
-        await dispatch(postAutoReport(newReport)).unwrap();
-        console.log('자동 신고 성공');
+      // Redux 상태 업데이트
+      dispatch(addAutoReport(newReport));
 
-        await PotholeModel.reportPothole(
-          currentLocation.latitude,
-          currentLocation.longitude,
-        );
-
-        onClose(); // 신고 후 화면 닫기
-      } catch (error) {
-        console.error('자동 신고 실패:', error);
-        setPrompt('신고에 실패했습니다. 다시 시도해주세요.');
-      }
+      await PotholeModel.reportPothole(
+        currentLocation.latitude,
+        currentLocation.longitude,
+      );
+      onClose();
     } else {
       setPrompt('다시 한번 신고 내용을 말씀해주세요');
       restartListening();
