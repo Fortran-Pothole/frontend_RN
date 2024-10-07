@@ -8,28 +8,35 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {loginUser} from '../slices/userSlice';
 import LoginSVG from '../assets/login_fortran.svg';
 
 function SignIn({setLoggedIn}) {
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const [usernameError, setUsernameError] = useState('');
+  const {status, error} = useSelector(state => state.user);
+  const [nameError, setNameError] = useState('');
 
+  const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const isUsernameValid = username.trim().length > 0;
+  const isNameValid = name.trim().length > 0;
   const isPasswordValid = password.trim().length > 0;
-  const canLogin = isUsernameValid && isPasswordValid;
+  const canLogin = isNameValid && isPasswordValid;
 
-  const handleUsernameChange = text => {
-    setUsernameError('');
-    setUsername(text);
+  const handleNameChange = text => {
+    setNameError('');
+    setName(text);
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (canLogin) {
-      Alert.alert('알림', '로그인에 성공했습니다!');
-      setLoggedIn(true); // 로그인 상태를 true로 설정하여 LoggedInStack으로 전환
+      const result = await dispatch(loginUser({name, password})).unwrap();
+      if (result) {
+        Alert.alert('알림', '로그인에 성공했습니다!');
+        setLoggedIn(true);
+      }
     } else {
       Alert.alert('알림', '아이디와 비밀번호를 확인해 주세요.');
     }
@@ -43,14 +50,12 @@ function SignIn({setLoggedIn}) {
 
       <View style={styles.inputWrapper}>
         <TextInput
-          style={styles.usernameInput}
+          style={styles.nameInput}
           placeholder="아이디"
-          value={username}
-          onChangeText={handleUsernameChange}
+          value={name}
+          onChangeText={handleNameChange}
         />
-        {usernameError ? (
-          <Text style={styles.errorText}>{usernameError}</Text>
-        ) : null}
+        {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
       </View>
 
       <View style={styles.inputWrapper}>
@@ -93,7 +98,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     marginBottom: 35,
   },
-  usernameInput: {
+  nameInput: {
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 25,

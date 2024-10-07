@@ -7,14 +7,13 @@ import store from './src/store';
 import Map from './src/pages/Map';
 import VoiceNotice from './src/pages/VoiceNotice';
 import Withdraw from './src/pages/Withdraw';
-import NoitcePothole from './src/pages/NoitcePothole';
 import OpenSourceLicenseScreen from './src/pages/OpenSource';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
 import {Setting, WebViewScreen} from './src/pages/Setting';
 import PotholeReport from './src/pages/PotholeReport';
 import PotholeReportDetail from './src/pages/PotholeReportDetail';
-import PotholeReportList from './src/pages/PotholeReportList';
+import PotholeReportTabs from './src/pages/PotholeReportTabs';
 import IconMenuBar from './src/assets/icon_menu_bar.svg';
 import IconHome from './src/assets/icon_home.svg';
 
@@ -23,12 +22,11 @@ export type LoggedInParamList = {
   Setting: undefined;
   WebViewScreen: {url: string};
   OpenSourceLicenseScreen: undefined;
-  NoitcePothole: undefined;
+  PotholeReportTabs: undefined;
   Withdraw: undefined;
   VoiceNotice: undefined;
   PotholeReport: undefined;
   PotholeReportDetail: undefined;
-  PotholeReportList: undefined;
 };
 
 export type RootStackParamList = {
@@ -40,7 +38,7 @@ const LoggedInStack = createNativeStackNavigator<LoggedInParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
-  const [isLoggedIn, setLoggedIn] = useState(true);
+  const [isLoggedIn, setLoggedIn] = useState(false);
 
   return (
     <Provider store={store}>
@@ -83,7 +81,7 @@ function App() {
                 headerTintColor: '#fff',
                 headerRight: () => (
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('PotholeReportList')}>
+                    onPress={() => navigation.navigate('PotholeReportTabs')}>
                     <IconMenuBar width={30} height={30} />
                   </TouchableOpacity>
                 ),
@@ -100,15 +98,15 @@ function App() {
                 headerTintColor: '#fff',
                 headerRight: () => (
                   <TouchableOpacity
-                    onPress={() => navigation.navigate('PotholeReportList')}>
+                    onPress={() => navigation.navigate('PotholeReportTabs')}>
                     <IconMenuBar width={30} height={30} />
                   </TouchableOpacity>
                 ),
               })}
             />
             <LoggedInStack.Screen
-              name="PotholeReportList"
-              component={PotholeReportList}
+              name="PotholeReportTabs"
+              component={PotholeReportTabs}
               options={({navigation}) => ({
                 title: '신고 목록',
                 headerStyle: {

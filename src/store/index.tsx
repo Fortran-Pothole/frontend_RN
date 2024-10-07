@@ -1,10 +1,14 @@
 // src/store/index.js
 import {configureStore} from '@reduxjs/toolkit';
-import potholeReducer from '../slices/potholeSlice';
+import manualPotholeReducer from '../slices/manualPotholeSlice';
+import autoPotholeReducer from '../slices/autoPotholeSlice';
+import userReducer from '../slices/userSlice';
 
 const store = configureStore({
   reducer: {
-    pothole: potholeReducer,
+    manualPothole: manualPotholeReducer, // 수동 신고 slice
+    autoPothole: autoPotholeReducer, // 자동 신고 slice
+    user: userReducer,
   },
 });
 
