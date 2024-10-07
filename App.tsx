@@ -68,11 +68,6 @@ function App() {
               options={{title: 'OpenSource'}}
             />
             <LoggedInStack.Screen
-              name="NoitcePothole"
-              component={NoitcePothole}
-              options={{title: '신고한 포트홀 조회'}}
-            />
-            <LoggedInStack.Screen
               name="Withdraw"
               component={Withdraw}
               options={{title: '탈퇴하기'}}

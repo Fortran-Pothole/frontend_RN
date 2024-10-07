@@ -27,6 +27,7 @@ function VoiceNotice({ startRecognition, currentLocation, onClose }) {
 
     if (speechResult.includes('신고')) {
       Tts.speak('이 위치로 포트홀을 신고할게요');
+      setPrompt(`지금 위치\n위도: ${currentLocation.latitude.toFixed(3)}, 경도: ${currentLocation.longitude.toFixed(3)}\n로 포트홀을 신고하겠습니다.`);
       await PotholeModel.reportPothole(currentLocation.latitude, currentLocation.longitude);
       onClose(); 
     } else {
@@ -58,6 +59,8 @@ function VoiceNotice({ startRecognition, currentLocation, onClose }) {
     if (!result.includes('신고')) {
       setPrompt('다시 한번 신고 내용을 말씀해주세요'); 
       restartListening();
+    } else {
+      setPrompt(`지금 위치\n위도: ${currentLocation.latitude.toFixed(5)}, 경도: ${currentLocation.longitude.toFixed(5)}\n로 포트홀을 신고하겠습니다.`)
     }
   };
 

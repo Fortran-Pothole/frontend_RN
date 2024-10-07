@@ -20,7 +20,10 @@ function Setting({navigation}) {
       </View>
       <TouchableOpacity 
           style={styles.item}
-          onPress={() => navigation.navigate('NoticePothole')}
+          onPress={() => {
+            console.log('Navigating to PotholeReportList');
+            navigation.navigate('PotholeReportList');
+          }}
       >
         <Text style={styles.text}>내가 신고한 포트홀 조회</Text>
       </TouchableOpacity>
