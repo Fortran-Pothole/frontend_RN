@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import PotholeModel, { Pothole } from '../models/PotholeModel';
-import SockJS from 'sockjs-client';
-import {Client} from '@stomp/stompjs';
+
 interface PotholeViewModel {
     potholes: Pothole[],
     loading: boolean,
@@ -14,12 +13,13 @@ export const usePotholeViewModel = (): PotholeViewModel => {
     const [potholes, setPotholes] = useState<Pothole[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
-    const [speed, setSpeed] = useState<number>(90); 
+    const [speed, setSpeed] = useState<number>(60); 
 
     const fetchPotholes = async () => {
         try {
             setLoading(true);
             const data = await PotholeModel.fetchPotholes();
+            setSpeed(speed);
             setPotholes(data);
         } catch (err) {
             setError(err);
@@ -30,36 +30,38 @@ export const usePotholeViewModel = (): PotholeViewModel => {
 
     useEffect(() => {
         fetchPotholes();
-        //WebSocket connection setup
-        const socket = new SockJS('http://15.164.200.30:8080/socket');
-        const stompClient = new Client({
-            webSocketFactory: () => socket,
-            debug: (str) => {
-                console.log(str);
-            },
-            onConnect: (frame) => {
-                console.log('Connected: ' + frame);
-                stompClient.subscribe('/topic/km-h', (message) => {
-                    console.log('Received message:', message.body);
-                    const receivedSpeed = parseFloat(message.body);
-                    setSpeed(receivedSpeed || 60);
-                });
-            },
-            onStompError: (frame) => {
-                console.error('STOMP error: ', frame);
-            },
-            onWebSocketError: (error) => {
-                console.error("WebSocket error:", error);
-            },
-            onWebSocketClose: () => {
-                console.log("WebSocket connection closed");
-            }
-        });
+        // WebSocket connection setup
+        let ws;
+        const connectWebSocket = () => {
+            ws = new WebSocket('ws://poksin-webcam.site/socket');
 
-        stompClient.activate();
+            ws.onopen = () => {
+                console.log('WebSocket connection opened.');
+            };
+
+            ws.onmessage = (event) => {
+                const receivedSpeed = parseFloat(event.data);
+                if (receivedSpeed + 60 !== speed) {
+                    setSpeed(receivedSpeed + 60);
+                }
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket connection closed. Reconnecting...');
+                setTimeout(connectWebSocket, 5000); // Reconnect after 5 seconds
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        };
+
+        connectWebSocket();
 
         return () => {
-            stompClient.deactivate();
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
         };
     }, []);
     

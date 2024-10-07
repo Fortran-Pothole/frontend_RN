@@ -75,10 +75,6 @@ function Map() {
 
   const start = { latitude: 35.24807444155034, longitude: 127.10349143909238 };
   const end = { latitude:  37.34518559022692, longitude: 127.10349143909238};
-
-  useEffect(() => {
-    console.log('Speed updated:', speed); // speed 값 변경 확인을 위해 로그 추가
-  }, [speed]);
   
   useEffect(() => {
     enableLayerGroup(LayerGroup.LAYER_GROUP_TRAFFIC);
@@ -96,9 +92,10 @@ function Map() {
           setShowPotholeInfo, 
           moveIntervalRef,
           passedPotholes,
-          setPassedPotholes
+          setPassedPotholes,
+          speed
         ); 
-      }, 1000);
+      }, 300);
     }
     return () => {
       clearInterval(moveIntervalRef.current);
