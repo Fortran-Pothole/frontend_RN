@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux'; // 리덕스 관련 추가
 import {
@@ -29,18 +36,30 @@ const NoticePotholeList = () => {
     });
   };
 
-  const renderItem = ({item}) => (
-    <TouchableOpacity onPress={() => handleItemPress(item)}>
-      <View style={styles.itemContainer}>
-        <Text style={styles.itemText}>
-          위치: {item.lat}, {item.lng}
-        </Text>
-        <Text style={styles.itemText}>
-          신고 일자: {item.created_at.split('T')[0]}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderItem = ({item}) => {
+    const imageUrl = item.image; // 이미지가 있다면 표시, 없다면 표시하지 않음
+    const formattedDate = item.created_at.split('T')[0]; // 신고 일자 포맷팅
+
+    return (
+      <TouchableOpacity onPress={() => handleItemPress(item)}>
+        <View style={styles.itemContainer}>
+          <View style={styles.textContainer}>
+            <Text style={styles.itemText}>
+              위치: {item.lat ? parseFloat(item.lat).toFixed(3) : 'N/A'},{' '}
+              {item.lng ? parseFloat(item.lng).toFixed(3) : 'N/A'}
+            </Text>
+            <Text style={styles.itemText}>신고 일자: {formattedDate}</Text>
+          </View>
+          {imageUrl && (
+            <Image
+              source={{uri: imageUrl}} // 이미지 URI로 불러오기
+              style={styles.itemImage} // 이미지 스타일 지정
+            />
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (status === 'loading') {
     return (
@@ -79,6 +98,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   itemText: {fontSize: 16, marginBottom: 5, color: '#000'},
+  itemImage: {
+    width: 60, // 이미지의 가로 크기
+    height: 60, // 이미지의 세로 크기
+    borderRadius: 8,
+    marginLeft: 10, // 텍스트와 이미지 사이 간격
+  },
   loadingContainer: {
     padding: 20,
     justifyContent: 'center',

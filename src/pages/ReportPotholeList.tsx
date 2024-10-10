@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
 import {fetchManualReports} from '../slices/manualPotholeSlice';
@@ -27,14 +34,20 @@ const ReportPotholeList = () => {
   };
 
   const renderItem = ({item}) => {
-    const formattedDate = new Date(item.created_at).toISOString().split('T')[0];
+    const formattedDate = item.created_at.split('T')[0];
+    const imageUri = item.images ? item.images.split(',')[0] : null;
 
     return (
       <TouchableOpacity onPress={() => handleItemPress(item)}>
         <View style={styles.itemContainer}>
-          <Text style={styles.itemText}>위치: {item.location}</Text>
-          <Text style={styles.itemText}>내용: {item.content}</Text>
-          <Text style={styles.itemText}>신고 일자: {formattedDate}</Text>
+          <View style={styles.textContainer}>
+            <Text style={styles.itemText}>위치: {item.location}</Text>
+            <Text style={styles.itemText}>내용: {item.content}</Text>
+            <Text style={styles.itemText}>신고 일자: {formattedDate}</Text>
+          </View>
+          {imageUri && (
+            <Image source={{uri: imageUri}} style={styles.itemImage} />
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -67,8 +80,13 @@ const ReportPotholeList = () => {
 };
 
 const styles = StyleSheet.create({
-  listContainer: {padding: 20},
+  listContainer: {
+    padding: 20,
+  },
   itemContainer: {
+    flexDirection: 'row', // 가로로 나열
+    justifyContent: 'space-between', // 텍스트와 이미지를 양쪽 끝에 배치
+    alignItems: 'center', // 이미지와 텍스트가 세로로 정렬되도록
     backgroundColor: '#f9f9f9',
     padding: 15,
     marginBottom: 10,
@@ -76,13 +94,30 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderWidth: 1,
   },
-  itemText: {fontSize: 16, marginBottom: 5, color: '#000'},
+  textContainer: {
+    flex: 1, // 텍스트가 차지하는 영역을 늘리기
+  },
+  itemText: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: '#000',
+  },
+  itemImage: {
+    width: 60, // 이미지의 가로 크기
+    height: 60, // 이미지의 세로 크기
+    borderRadius: 8,
+    marginLeft: 10, // 텍스트와 이미지 사이의 간격
+  },
   loadingContainer: {
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  errorContainer: {padding: 20, justifyContent: 'center', alignItems: 'center'},
+  errorContainer: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default ReportPotholeList;
