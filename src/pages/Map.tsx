@@ -17,11 +17,11 @@ import checkDistance from '../../types/checkDistance';
 import Tts from 'react-native-tts';
 import { moveTowardsEnd } from '../../types/locationUtils';
 import PotholeInfo from '../components/PotholeInfo';
-import { usePotholeViewModel } from '../data/viewModels/PotholeViewModels';
+import { usePotholeViewModel, fetchPotholes } from '../data/viewModels/PotholeViewModels';
 
 function Map() {
   const navigation = useNavigation();
-  const { potholes, loading, error } = usePotholeViewModel();
+  const { potholes, loading, error, fetchPotholes, speed} = usePotholeViewModel();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({ latitude: 0, longitude: 0 });
   const openVoiceNotice = () => {
@@ -30,7 +30,9 @@ function Map() {
   };
   const closeVoiceNotice = () => {
     setIsModalVisible(false);
+    fetchPotholes(); // 모달이 닫힐 때 포트홀 데이터를 다시 가져옴
   };
+  const [showSpeedFilter, setShowSpeedFilter] = useState(false);
   const screenWidth = Dimensions.get('window').width;
   const [showPotholeInfo, setShowPotholeInfo] = useState(false);
   const [selectedPothole, setSelectedPothole] = useState(null);
@@ -70,10 +72,10 @@ function Map() {
     }
   };
 
+
   const start = { latitude: 35.24807444155034, longitude: 127.10349143909238 };
   const end = { latitude:  37.34518559022692, longitude: 127.10349143909238};
-
-
+  
   useEffect(() => {
     enableLayerGroup(LayerGroup.LAYER_GROUP_TRAFFIC);
   }, []);
@@ -90,15 +92,25 @@ function Map() {
           setShowPotholeInfo, 
           moveIntervalRef,
           passedPotholes,
-          setPassedPotholes
+          setPassedPotholes,
+          speed
         ); 
-      }, 1000);
+      }, 300);
     }
     return () => {
       clearInterval(moveIntervalRef.current);
       clearInterval(ttsIntervalRef.current);
     };
   }, [myPosition, potholes]);
+
+  useEffect(() => {
+    // TTS가 활성화되고, 속도가 90 이상일 경우 필터를 표시
+    if (isSpeakingRef.current && speed >= 90) {
+      setShowSpeedFilter(true);
+    } else {
+      setShowSpeedFilter(false);
+    }
+  }, [speed, isSpeakingRef.current]);
 
   useEffect(() => {
     Tts.getInitStatus()
@@ -196,7 +208,6 @@ function Map() {
             ? require('../assets/pothole_warning.png') 
             : require('../assets/pothole.png');
           const markerSize = isDangerous ? 45 : 35;
-
           return (
             <Marker
               key={position.id}
@@ -227,13 +238,16 @@ function Map() {
         />
       </NaverMapView>
 
+      <View style={styles.speedContainer}>
+        <Text style={styles.speedText}>{speed} km/h</Text>
+      </View>
+
       {showPotholeInfo && selectedPothole && (
         <PotholeInfo 
           position={selectedPothole} 
           myPosition={myPosition} 
         />
       )}
-
       <TouchableOpacity style={styles.micButton} onPress={openVoiceNotice}>
         <Image
           source={require('../assets/microphone.png')}
@@ -259,6 +273,10 @@ function Map() {
           </TouchableOpacity>
         </View>
       </Modal>
+
+      {showSpeedFilter && (
+        <View style={styles.speedFilter} />
+      )}
     </View>
   );
 }
@@ -281,6 +299,19 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  speedContainer: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    padding: 10,
+    borderRadius: 8,
+  },
+  speedText: {
+    fontSize: 60, 
+    fontWeight: 'bold',
+    color: '#000',
   },
   micButton: {
     position: 'absolute',
@@ -357,6 +388,16 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
+  },
+  speedFilter: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#F73939',
+    opacity: 0.2, // 20% 투명도
+    zIndex: 999, // 화면 맨 위에 표시
   },
 });
 

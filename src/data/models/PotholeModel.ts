@@ -16,8 +16,8 @@ export default class PotholeModel {
         try {
             const url = `${Config.BASE_URL}/pothole/`;
             console.log('Request URL:', url);
-            const response = await axios.get(`${Config.BASE_URL}/pothole/`);
-            console.log('Pothole Data:', response.data);
+            const response = await axios.get(url);
+            // console.log('Pothole Data:', response.data);
             // 데이터 검증 및 필터링
             return response.data
             .filter((item: any) => {
@@ -47,13 +47,13 @@ export default class PotholeModel {
             image: "",
             done: -1,
           };
-          console.log('Request Data:', data); // 요청 전에 데이터를 확인
+          // console.log('Request Data:', data); // 요청 전에 데이터를 확인
           const response = await axios.post(url, data, {
             headers: {
               'Content-Type': 'application/json',
             },
           });
-          console.log('Pothole Reported:', response.data);
+          // console.log('Pothole Reported:', response.data);
         } catch (error) {
           console.error('Failed to report pothole:', error.response?.data || error.message);
           throw error;
