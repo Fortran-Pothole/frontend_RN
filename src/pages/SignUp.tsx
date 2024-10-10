@@ -79,7 +79,7 @@ function SignUp() {
   };
 
   const handleSignUp = async () => {
-    if (canSignUp) {
+    if (canGoNext) {
       const result = await dispatch(
         signUpUser({name, phone, password}),
       ).unwrap();
