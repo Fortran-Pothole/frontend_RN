@@ -82,7 +82,10 @@ const PotholeReportDetail = () => {
         setReportDate(report.created_at.split('T')[0]);
         setPhotos(report.images ? report.images.split(',') : []);
       } else if (reportType === 'auto') {
-        setLocation(`${report.lat}, ${report.lng}`);
+        // 위도와 경도를 소수점 3자리로 절삭
+        const lat = report.lat ? parseFloat(report.lat).toFixed(3) : 'N/A';
+        const lng = report.lng ? parseFloat(report.lng).toFixed(3) : 'N/A';
+        setLocation(`${lat}, ${lng}`);
         setReportDate(report.created_at.split('T')[0]);
         setPhotos(report.image ? [report.image] : []);
       }

@@ -33,7 +33,8 @@ const NoticePotholeList = () => {
     <TouchableOpacity onPress={() => handleItemPress(item)}>
       <View style={styles.itemContainer}>
         <Text style={styles.itemText}>
-          위치: {item.lat}, {item.lng}
+          위치: {item.lat ? parseFloat(item.lat).toFixed(3) : 'N/A'},{' '}
+          {item.lng ? parseFloat(item.lng).toFixed(3) : 'N/A'}
         </Text>
         <Text style={styles.itemText}>
           신고 일자: {item.created_at.split('T')[0]}
