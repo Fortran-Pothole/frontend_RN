@@ -27,7 +27,7 @@ const ReportPotholeList = () => {
   };
 
   const renderItem = ({item}) => {
-    const formattedDate = new Date(item.created_at).toISOString().split('T')[0];
+    const formattedDate = item.created_at.split('T')[0];
 
     return (
       <TouchableOpacity onPress={() => handleItemPress(item)}>
