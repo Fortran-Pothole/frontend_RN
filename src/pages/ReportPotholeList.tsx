@@ -69,9 +69,14 @@ const ReportPotholeList = () => {
     );
   }
 
+  // 수동 신고 목록을 내림차순으로 정렬
+  const sortedReports = [...manualReports].sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at),
+  );
+
   return (
     <FlatList
-      data={manualReports}
+      data={sortedReports}
       renderItem={renderItem}
       keyExtractor={item => item.id.toString()}
       contentContainerStyle={styles.listContainer}

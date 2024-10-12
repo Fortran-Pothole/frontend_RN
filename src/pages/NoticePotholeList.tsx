@@ -77,9 +77,14 @@ const NoticePotholeList = () => {
     );
   }
 
+  // 내림차순으로 정렬
+  const sortedReports = [...autoReports].sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at),
+  );
+
   return (
     <FlatList
-      data={autoReports}
+      data={sortedReports}
       renderItem={renderItem}
       keyExtractor={item => item.id.toString()}
       contentContainerStyle={styles.listContainer}
